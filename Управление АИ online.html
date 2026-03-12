@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>СберКонтроль АИ | Управление проектом</title>
+    <style>
+        :root {
+            --sber-green: #21A038;
+            --sber-green-light: #E6F4EA;
+            --sber-green-dark: #1A8330;
+            --sber-gray: #F5F7FA;
+            --sber-text: #333333;
+            --sber-text-light: #6B7280;
+            --sber-white: #FFFFFF;
+            --sber-border: #E5E7EB;
+            --sber-red: #EF4444;
+            --sber-yellow: #F59E0B;
+            --sber-blue: #3B82F6;
+            --sber-orange: #F97316;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--sber-gray);
+            color: var(--sber-text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: var(--sber-white);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px;
+        }
+
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--sber-green);
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 16px; }
+
+        .sber-logo {
+            width: 48px; height: 48px;
+            background: var(--sber-green);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .sber-logo::after { content: "С"; font-family: serif; }
+
+        .sync-panel {
+            background: linear-gradient(135deg, var(--sber-green-light), white);
+            border: 2px solid var(--sber-green);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sync-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--sber-green);
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .sync-indicator.error { background: var(--sber-red); }
+        .sync-indicator.syncing { background: var(--sber-yellow); animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            background: var(--sber-gray);
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--sber-text-light);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .tab:hover { background: rgba(33, 160, 56, 0.1); color: var(--sber-green); }
+        .tab.active { background: var(--sber-green); color: white; }
+
+        .tab-badge {
+            background: var(--sber-red);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-new {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--sber-orange);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--sber-white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--sber-border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--sber-border);
+        }
+
+        .card-title {
+            color: var(--sber-text);
+            font-size: 1.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary { background: var(--sber-green); color: white; }
+        .btn-primary:hover { background: var(--sber-green-dark); }
+        .btn-secondary { background: var(--sber-gray); color: var(--sber-text); border: 1px solid var(--sber-border); }
+        .btn-danger { background: #FEE2E2; color: var(--sber-red); }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .data-table th {
+            background: var(--sber-green-light);
+            color: var(--sber-green-dark);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--sber-green);
+            font-weight: 600;
+        }
+
+        .data-table td { padding: 12px; border-bottom: 1px solid var(--sber-border); }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-success { background: var(--sber-green-light); color: var(--sber-green-dark); }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-danger { background: #FEE2E2; color: #991B1B; }
+        .badge-info { background: #DBEAFE; color: #1E40AF; }
+        .badge-new { background: var(--sber-orange); color: white; }
+        .badge-cancelled { background: var(--sber-red); color: white; }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--sber-border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9em;
+        }
+
+        .form-textarea { min-height: 60px; resize: vertical; }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box { position: relative; flex: 1; min-width: 300px; }
+        .search-box input { padding-left: 40px; }
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--sber-green);
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .contact-card {
+            background: linear-gradient(135deg, var(--sber-green-light), white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--sber-green);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .contact-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--sber-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .zones-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .zone-tag {
+            background: white;
+            border: 1px solid var(--sber-green);
+            color: var(--sber-green-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .mdr-item {
+            border: 1px solid var(--sber-border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .mdr-item.new { border-left: 4px solid var(--sber-orange); }
+        .mdr-item.cancelled { opacity: 0.6; background: #FEE2E2; }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--sber-text-light);
+        }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .contact-card { grid-template-columns: 1fr; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- Модальное окно изменений -->
+    <div id="changeModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📝 Редактирование записи</div>
+                <button class="close-btn" onclick="closeChangeModal()">&times;</button>
+            </div>
+            <form id="changeForm" onsubmit="saveChange(event)">
+                <input type="hidden" id="changeId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>№ записи</label>
+                        <input type="number" id="changeNumber" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <select id="changeCategory" class="form-select">
+                            <option value="Сроки">Сроки</option>
+                            <option value="Ресурсы">Ресурсы</option>
+                            <option value="Бюджет">Бюджет</option>
+                            <option value="Объем">Объем</option>
+                            <option value="Качество">Качество</option>
+                            <option value="Требования">Требования</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Элемент/Комплект</label>
+                    <input type="text" id="changeElement" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Описание изменения</label>
+                    <textarea id="changeDescription" class="form-textarea" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Инициатор</label>
+                        <input type="text" id="changeInitiator" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата запроса</label>
+                        <input type="date" id="changeRequestDate" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="changeStatus" class="form-select">
+                        <option value="На рассмотрении">На рассмотрении</option>
+                        <option value="Внесено">Внесено</option>
+                        <option value="Одобрено">Одобрено</option>
+                        <option value="Отклонено">Отклонено</option>
+                        <option value="Отложено">Отложено</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Решение принял</label>
+                        <input type="text" id="changeDecisionMaker" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Дата решения</label>
+                        <input type="date" id="changeDecisionDate" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Решение/Комментарий</label>
+                    <textarea id="changeDecision" class="form-textarea"></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeChangeModal()">Отмена</button>
+                    <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно проблемы -->
+    <div id="issueModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">⚠️ Новая проблема</div>
+                <button class="close-btn" onclick="closeIssueModal()">&times;</button>
+            </div>
+            <form id="issueForm" onsubmit="saveIssue(event)">
+                <input type="hidden" id="issueContractorId">
+                <input type="hidden" id="issueDocCode">
+                <input type="hidden" id="issueDocName">
+                
+                <div class="form-group">
+                    <label>ID проблемы</label>
+                    <input type="text" id="issueId" class="form-input" readonly style="background: var(--sber-gray);">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Подрядчик</label>
+                        <input type="text" id="issueContractorName" class="form-input" readonly style="background: var(--sber-gray);">
+                    </div>
+                    <div class="form-group">
+                        <label>Классификатор</label>
+                        <select id="issueClassifier" class="form-select" required>
+                            <option value="">Выберите...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Влияет на комплект</label>
+                    <input type="text" id="issueAffectedDoc" class="form-input" readonly style="background: var(--sber-gray);">
+                </div>
+                
+                <div class="form-group">
+                    <label>Описание проблемы</label>
+                    <textarea id="issueDesc" class="form-textarea" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Дата выявления</label>
+                        <input type="date" id="issueDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Срок решения</label>
+                        <input type="date" id="issueDueDate" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Статус</label>
+                        <select id="issueStatus" class="form-select">
+                            <option value="Новая">Новая</option>
+                            <option value="В работе">В работе</option>
+                            <option value="Требует решения">Требует решения</option>
+                            <option value="На согласовании">На согласовании</option>
+                            <option value="Решено">Решено</option>
+                            <option value="Отменено">Отменено</option>
+                            <option value="Отложено">Отложено</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Приоритет</label>
+                        <select id="issuePriority" class="form-select">
+                            <option value="Критический">🔴 Критический</option>
+                            <option value="Высокий">🟡 Высокий</option>
+                            <option value="Средний" selected>🟢 Средний</option>
+                            <option value="Низкий">🔵 Низкий</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeIssueModal()">Отмена</button>
+                    <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========== КОНФИГУРАЦИЯ ==========
+        const CONFIG = {
+            API_KEY: 'AIzaSyALuEu2c9Bb6CD4S1JtjwJ4z0XhvFWsZ6s',
+            SHEET_ID: '17_CmtpowQzh4LD9G8IxYErdS1BxOm7EeAN0foKe9pO8',
+            MDR_RANGE: 'MDR!A:M',
+            ISSUES_RANGE: 'Проблемы!A:I'
+        };
+
+        // ========== ДАННЫЕ ==========
+        const CONTRACTORS = [
+            { id: 2, name: 'Design Solution', prefix: 'DS', contact: 'Дмитрий Сербин', phone: '+7 952 550 9128', zones: ['Банк МВСП', 'Офисы', 'Столовая', 'Ресторан', 'Атриум', 'МОП'] },
+            { id: 3, name: 'FitOut Pro', prefix: 'FIT', contact: 'Карен Акопян', phone: '+7 926 874 4470', zones: ['МФЗ'] },
+            { id: 4, name: 'Ultima Pro', prefix: 'ULT', contact: 'Роман Ворошилов', phone: '+7 921 326 2279', zones: ['Визитор-центр'] },
+            { id: 5, name: 'A4', prefix: 'A4', contact: 'Лия Монахова', phone: '+7 926 211 0122', zones: ['Медиацентр', 'Эксплуатируемая кровля'] },
+            { id: 6, name: 'Bohan Studio', prefix: 'BOH', contact: 'Виктория Нагурная', phone: '+7 965 106 3111', zones: ['Спорткомплекс'] }
+        ];
+
+        const CLASSIFIERS = ['Согласование', 'ИРД', 'BIM', 'Проектные решения', 'Тех.решения', 'Увязка', 'Сроки', 'Качество', 'Материалы', 'Обмеры', 'Конструкции', 'Инженерия', 'Навигация', 'Акустика', 'Освещение', 'Мебель', 'Декорирование', 'Закупка', 'Производство', 'Монтаж', 'Смета', 'Документация'];
+
+        // ========== СОСТОЯНИЕ ==========
+        let currentTab = 1;
+        let mdrData = [];
+        let issues = [];
+        let changes = [];
+        let lastSync = null;
+        let syncError = null;
+        let searchFilter = '';
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        function init() {
+            loadFromStorage();
+            loadClassifiers();
+            render();
+            syncData();
+        }
+
+        function loadFromStorage() {
+            const savedIssues = localStorage.getItem('ai_issues');
+            const savedChanges = localStorage.getItem('ai_changes');
+            if (savedIssues) issues = JSON.parse(savedIssues);
+            if (savedChanges) changes = JSON.parse(savedChanges);
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('ai_issues', JSON.stringify(issues));
+            localStorage.setItem('ai_changes', JSON.stringify(changes));
+        }
+
+        function loadClassifiers() {
+            const select = document.getElementById('issueClassifier');
+            CLASSIFIERS.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                select.appendChild(opt);
+            });
+        }
+
+        // ========== СИНХРОНИЗАЦИЯ ==========
+        async function syncData() {
+            updateSyncStatus('syncing', 'Синхронизация...');
+            
+            try {
+                // Проверка доступа
+                const checkUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}?key=${CONFIG.API_KEY}`;
+                const checkRes = await fetch(checkUrl);
+                
+                if (!checkRes.ok) {
+                    const err = await checkRes.json();
+                    throw new Error(err.error?.message || 'Ошибка доступа');
+                }
+
+                // Загрузка MDR
+                await loadMDR();
+                
+                lastSync = new Date();
+                updateSyncStatus('ok', `Синхронизировано: ${lastSync.toLocaleTimeString('ru-RU')}`);
+                render();
+                
+            } catch (error) {
+                console.error('Sync error:', error);
+                syncError = error.message;
+                updateSyncStatus('error', 'Ошибка: ' + error.message);
+            }
+        }
+
+        async function loadMDR() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
+            
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Не удалось загрузить MDR');
+            
+            const data = await response.json();
+            const rows = data.values || [];
+            
+            if (rows.length < 3) {
+                mdrData = [];
+                return;
+            }
+
+            // Сохраняем старые коды для определения новых
+            const oldCodes = new Set(mdrData.map(m => m.docCode));
+            
+            // Парсим начиная со строки 3 (индекс 2)
+            mdrData = [];
+            
+            for (let i = 2; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || !row[4]) continue; // Нет шифра комплекта
+                
+                const zone = (row[0] || '').toString().trim();
+                const docCode = row[4].toString().trim();
+                
+                const contractor = findContractor(zone);
+                
+                mdrData.push({
+                    id: i,
+                    zone: zone,
+                    discipline: (row[1] || '').toString().trim(), // Колонка B - шифр АИ
+                    docCode: docCode,                              // Колонка E - шифр комплекта
+                    docName: (row[5] || '').toString().trim(),     // Колонка F - название
+                    intermediateStatus: (row[11] || '').toString().trim(), // Колонка L
+                    finalStatus: (row[12] || '').toString().trim(),        // Колонка M
+                    contractorId: contractor?.id,
+                    contractorName: contractor?.name || 'Не определен',
+                    isNew: !oldCodes.has(docCode) && oldCodes.size > 0,
+                    isCancelled: false
+                });
+            }
+        }
+
+        function findContractor(zone) {
+            if (!zone) return null;
+            const z = zone.toLowerCase();
+            
+            if (z.includes('банк') || z.includes('офис') || z.includes('столовая') || z.includes('ресторан') || z.includes('атриум') || z.includes('моп')) {
+                return CONTRACTORS[0];
+            }
+            if (z.includes('мфз')) return CONTRACTORS[1];
+            if (z.includes('визитор')) return CONTRACTORS[2];
+            if (z.includes('медиа') || z.includes('кровля') || z.includes('терраса')) return CONTRACTORS[3];
+            if (z.includes('спорт')) return CONTRACTORS[4];
+            
+            return null;
+        }
+
+        function updateSyncStatus(status, text) {
+            const indicator = document.getElementById('syncIndicator');
+            const label = document.getElementById('syncText');
+            if (indicator) {
+                indicator.className = 'sync-indicator ' + status;
+                label.textContent = text;
+            }
+        }
+
+        // ========== РЕНДЕРИНГ ==========
+        function render() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <div class="container">
+                    <div class="main-header">
+                        <div class="logo-area">
+                            <div class="sber-logo"></div>
+                            <div>
+                                <h1>Управление проектом АИ (Дизайн интерьеров)</h1>
+                                <p>К32, Кутузовский пр-т 32 | Интеграция с Google Sheets</p>
+                            </div>
+                        </div>
+                        <span class="badge badge-success">👤 Администратор</span>
+                    </div>
+
+                    <div class="sync-panel">
+                        <div>
+                            <span id="syncIndicator" class="sync-indicator"></span>
+                            <span id="syncText">${syncError || 'Нажмите "Синхронизировать"'}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" onclick="syncData()">🔄 Синхронизировать</button>
+                            <button class="btn btn-secondary" onclick="exportIssues()">📤 Выгрузить проблемы</button>
+                        </div>
+                    </div>
+
+                    <div class="tabs">
+                        <div class="tab ${currentTab === 1 ? 'active' : ''}" onclick="switchTab(1)">📊 Дашборд</div>
+                        <div class="tab ${currentTab === 2 ? 'active' : ''}" onclick="switchTab(2)">📋 Все MDR</div>
+                        ${CONTRACTORS.map((c, i) => {
+                            const hasNew = mdrData.some(m => m.contractorId === c.id && m.isNew);
+                            return `
+                                <div class="tab ${currentTab === i + 3 ? 'active' : ''}" onclick="switchTab(${i + 3})">
+                                    👷 ${c.name}
+                                    ${hasNew ? '<span class="tab-new">N</span>' : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                        <div class="tab ${currentTab === 8 ? 'active' : ''}" onclick="switchTab(8)">
+                            📝 Изменения
+                            <span class="tab-badge">${changes.filter(c => c.status === 'На рассмотрении').length}</span>
+                        </div>
+                        <div class="tab ${currentTab === 9 ? 'active' : ''}" onclick="switchTab(9)">⚠️ Проблемы</div>
+                    </div>
+
+                    <div class="tab-content active">
+                        ${renderTab()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTab() {
+            switch(currentTab) {
+                case 1: return renderDashboard();
+                case 2: return renderAllMDR();
+                case 3: return renderContractor(2);
+                case 4: return renderContractor(3);
+                case 5: return renderContractor(4);
+                case 6: return renderContractor(5);
+                case 7: return renderContractor(6);
+                case 8: return renderChanges();
+                case 9: return renderIssues();
+                default: return '<div>Выберите вкладку</div>';
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            render();
+        }
+
+        // ========== ДАШБОРД ==========
+        function renderDashboard() {
+            const activeMDR = mdrData.filter(m => !m.isCancelled);
+            const newMDR = mdrData.filter(m => m.isNew);
+            const openIssues = issues.filter(i => !['Решено', 'Отменено'].includes(i.status));
+            
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 Дашборд</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                        <div class="card" style="text-align: center;">
+                            <div style="font-size: 2em; color: var(--sber-green); font-weight: bold;">${activeMDR.length}</div>
+                            <div>Активных комплектов</div>
+                            ${newMDR.length > 0 ? `<span class="badge badge-new">+${newMDR.length} новых</span>` : ''}
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <div style="font-size: 2em; color: var(--sber-yellow); font-weight: bold;">${issues.length}</div>
+                            <div>Всего проблем</div>
+                            <div style="font-size: 0.9em; color: var(--sber-text-light);">Открыто: ${openIssues.length}</div>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <div style="font-size: 2em; color: var(--sber-blue); font-weight: bold;">${changes.length}</div>
+                            <div>Изменений</div>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <div style="font-size: 1.5em; color: var(--sber-text); font-weight: bold;">
+                                ${lastSync ? lastSync.toLocaleTimeString('ru-RU') : '—'}
+                            </div>
+                            <div>Последняя синхронизация</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== ВСЕ MDR ==========
+        function renderAllMDR() {
+            const filtered = mdrData.filter(m => {
+                if (!searchFilter) return !m.isCancelled;
+                const term = searchFilter.toLowerCase();
+                return !m.isCancelled && (
+                    m.discipline.toLowerCase().includes(term) ||
+                    m.docCode.toLowerCase().includes(term) ||
+                    m.docName.toLowerCase().includes(term)
+                );
+            });
+
+            const grouped = {};
+            filtered.forEach(m => {
+                if (!grouped[m.contractorName]) grouped[m.contractorName] = {};
+                if (!grouped[m.contractorName][m.zone]) grouped[m.contractorName][m.zone] = [];
+                grouped[m.contractorName][m.zone].push(m);
+            });
+
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📋 Реестр MDR</div>
+                        <div>
+                            <button class="btn btn-secondary" onclick="exportMDR()">📊 Excel</button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <div class="search-box">
+                            <input type="text" class="form-input" placeholder="Поиск по шифру АИ, шифру комплекта или названию..." 
+                                value="${searchFilter}" onkeyup="updateSearch(this.value)">
+                        </div>
+                        <button class="btn btn-secondary" onclick="updateSearch('')">Очистить</button>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <span class="badge badge-info">Всего: ${mdrData.filter(m => !m.isCancelled).length}</span>
+                        ${searchFilter ? `<span class="badge badge-warning" style="margin-left: 8px;">Найдено: ${filtered.length}</span>` : ''}
+                    </div>
+
+                    ${Object.entries(grouped).map(([contractor, zones]) => `
+                        <div style="margin-bottom: 20px; border: 1px solid var(--sber-border); border-radius: 8px; overflow: hidden;">
+                            <div style="background: var(--sber-green); color: white; padding: 12px; font-weight: 600;">
+                                👷 ${contractor}
+                            </div>
+                            <div style="padding: 12px;">
+                                ${Object.entries(zones).map(([zone, docs]) => `
+                                    <div style="margin-bottom: 16px;">
+                                        <div style="background: var(--sber-green-light); padding: 8px 12px; font-weight: 600; border-radius: 4px; margin-bottom: 8px;">
+                                            📁 ${zone} (${docs.length})
+                                        </div>
+                                        <table class="data-table" style="font-size: 0.85em;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Статус</th>
+                                                    <th>Шифр АИ</th>
+                                                    <th>Шифр комплекта</th>
+                                                    <th>Наименование</th>
+                                                    <th>Промежуточный статус</th>
+                                                    <th>Статус согласования</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${docs.map(m => `
+                                                    <tr class="${m.isNew ? 'new-item' : ''}">
+                                                        <td>${m.isNew ? '<span class="badge badge-new">NEW</span>' : '<span class="badge badge-success">✓</span>'}</td>
+                                                        <td style="font-family: monospace;">${m.discipline}</td>
+                                                        <td style="font-family: monospace; font-weight: 600; color: var(--sber-green);">${m.docCode}</td>
+                                                        <td>${m.docName}</td>
+                                                        <td>${m.intermediateStatus || '—'}</td>
+                                                        <td>${m.finalStatus ? `<span class="badge badge-success">${m.finalStatus}</span>` : '—'}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('') || '<p style="text-align: center; padding: 40px;">Нет данных</p>'}
+                </div>
+            `;
+        }
+
+        function updateSearch(value) {
+            searchFilter = value;
+            render();
+        }
+
+        // ========== ПОДРЯДЧИК ==========
+        function renderContractor(contractorId) {
+            const c = CONTRACTORS.find(x => x.id === contractorId);
+            const docs = mdrData.filter(m => m.contractorId === contractorId && !m.isCancelled);
+            const newDocs = docs.filter(m => m.isNew);
+            const cancelled = mdrData.filter(m => m.contractorId === contractorId && m.isCancelled);
+            const contractorIssues = issues.filter(i => i.contractorId === contractorId);
+
+            const byZone = {};
+            docs.forEach(m => {
+                if (!byZone[m.zone]) byZone[m.zone] = [];
+                byZone[m.zone].push(m);
+            });
+
+            return `
+                <div class="contact-card">
+                    <div class="contact-avatar">${c.prefix}</div>
+                    <div>
+                        <h3>${c.name}</h3>
+                        <p>РП: ${c.contact}</p>
+                        <div class="zones-list">
+                            ${c.zones.map(z => `<span class="zone-tag">${z}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        📞 ${c.phone}<br>
+                        <span class="badge badge-info">${docs.length} комплектов</span>
+                        ${newDocs.length > 0 ? `<br><span class="badge badge-new">${newDocs.length} новых</span>` : ''}
+                    </div>
+                </div>
+
+                ${newDocs.length > 0 ? `
+                    <div class="card" style="border: 2px solid var(--sber-orange);">
+                        <div class="card-header">
+                            <div class="card-title">🆕 Новые комплекты</div>
+                        </div>
+                        ${newDocs.map(m => `
+                            <div class="mdr-item new" style="margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-family: monospace; color: var(--sber-green); font-weight: 600;">${m.docCode}</div>
+                                        <div>${m.docName}</div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="markReviewed(${m.id})">✓ Просмотрено</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                ${cancelled.length > 0 ? `
+                    <div class="card" style="border: 2px solid var(--sber-red);">
+                        <div class="card-header">
+                            <div class="card-title">🗑️ Отмененные комплекты</div>
+                        </div>
+                        ${cancelled.map(m => `
+                            <div class="mdr-item cancelled">
+                                <div style="font-family: monospace; text-decoration: line-through;">${m.docCode}</div>
+                                <div style="text-decoration: line-through;">${m.docName}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📋 Комплекты (${docs.length})</div>
+                    </div>
+                    ${Object.entries(byZone).map(([zone, items]) => `
+                        <div style="margin-bottom: 20px; border: 1px solid var(--sber-border); border-radius: 8px; overflow: hidden;">
+                            <div style="background: var(--sber-green-light); padding: 12px; font-weight: 600;">📁 ${zone}</div>
+                            <div style="padding: 12px;">
+                                ${items.map(m => `
+                                    <div class="mdr-item ${m.isNew ? 'new' : ''}">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                            <div style="font-family: monospace; color: var(--sber-green); font-weight: 600;">${m.docCode}</div>
+                                            ${m.isNew ? '<span class="badge badge-new">NEW</span>' : ''}
+                                        </div>
+                                        <div style="margin-bottom: 8px;">${m.docName}</div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85em; margin-bottom: 12px;">
+                                            <div>
+                                                <span style="color: var(--sber-text-light);">Промежуточный статус:</span><br>
+                                                ${m.intermediateStatus || '—'}
+                                            </div>
+                                            <div>
+                                                <span style="color: var(--sber-text-light);">Статус согласования:</span><br>
+                                                ${m.finalStatus ? `<span class="badge badge-success">${m.finalStatus}</span>` : '—'}
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary" style="width: 100%;" 
+                                            onclick="openIssueModal(${c.id}, '${m.docCode}', '${m.docName.replace(/'/g, "\\'")}')">
+                                            ➕ Проблема
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('') || '<p style="text-align: center; padding: 20px;">Нет комплектов</p>'}
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⚠️ Проблемы (${contractorIssues.length})</div>
+                        <button class="btn btn-primary" onclick="openIssueModal(${c.id})">➕ Добавить</button>
+                    </div>
+                    ${contractorIssues.length > 0 ? `
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Классификатор</th>
+                                    <th>Влияет на</th>
+                                    <th>Описание</th>
+                                    <th>Дата</th>
+                                    <th>Срок</th>
+                                    <th>Статус</th>
+                                    <th>Приоритет</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${contractorIssues.map(i => `
+                                    <tr>
+                                        <td><strong style="color: var(--sber-green);">${i.id}</strong></td>
+                                        <td><span class="badge badge-info">${i.classifier}</span></td>
+                                        <td style="font-family: monospace; font-size: 0.85em;">${i.affectedDoc || '—'}</td>
+                                        <td>${i.desc}</td>
+                                        <td>${formatDate(i.date)}</td>
+                                        <td><strong>${formatDate(i.dueDate)}</strong></td>
+                                        <td>${renderStatusBadge(i.status)}</td>
+                                        <td>${renderPriorityBadge(i.priority)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : '<p style="text-align: center; padding: 20px;">Проблем нет 🎉</p>'}
+                </div>
+            `;
+        }
+
+        function markReviewed(id) {
+            const m = mdrData.find(x => x.id === id);
+            if (m) {
+                m.isNew = false;
+                render();
+            }
+        }
+
+        // ========== ЖУРНАЛ ИЗМЕНЕНИЙ ==========
+        function renderChanges() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📝 Журнал изменений (${changes.length})</div>
+                        <button class="btn btn-primary" onclick="openChangeModal()">➕ Добавить</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Категория</th>
+                                <th>Элемент</th>
+                                <th>Описание</th>
+                                <th>Инициатор</th>
+                                <th>Дата</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${changes.map(c => `
+                                <tr>
+                                    <td><strong>${c.number}</strong></td>
+                                    <td><span class="badge badge-info">${c.category}</span></td>
+                                    <td>${c.element || '—'}</td>
+                                    <td>${c.description}</td>
+                                    <td>${c.initiator}</td>
+                                    <td>${formatDate(c.requestDate)}</td>
+                                    <td>${renderStatusBadge(c.status)}</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="openChangeModal(${c.id})">✏️</button>
+                                        <button class="btn btn-danger" onclick="deleteChange(${c.id})">🗑️</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openChangeModal(id = null) {
+            const modal = document.getElementById('changeModal');
+            
+            if (id) {
+                const c = changes.find(x => x.id === id);
+                document.getElementById('changeId').value = c.id;
+                document.getElementById('changeNumber').value = c.number;
+                document.getElementById('changeCategory').value = c.category;
+                document.getElementById('changeElement').value = c.element || '';
+                document.getElementById('changeDescription').value = c.description;
+                document.getElementById('changeInitiator').value = c.initiator;
+                document.getElementById('changeRequestDate').value = c.requestDate;
+                document.getElementById('changeStatus').value = c.status;
+                document.getElementById('changeDecisionMaker').value = c.decisionMaker || '';
+                document.getElementById('changeDecisionDate').value = c.decisionDate || '';
+                document.getElementById('changeDecision').value = c.decision || '';
+            } else {
+                document.getElementById('changeForm').reset();
+                document.getElementById('changeId').value = '';
+                document.getElementById('changeNumber').value = (Math.max(0, ...changes.map(c => c.number)) + 1);
+                document.getElementById('changeRequestDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('changeStatus').value = 'На рассмотрении';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeChangeModal() {
+            document.getElementById('changeModal').classList.remove('active');
+        }
+
+        function saveChange(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('changeId').value;
+            const data = {
+                number: parseInt(document.getElementById('changeNumber').value),
+                category: document.getElementById('changeCategory').value,
+                element: document.getElementById('changeElement').value,
+                description: document.getElementById('changeDescription').value,
+                initiator: document.getElementById('changeInitiator').value,
+                requestDate: document.getElementById('changeRequestDate').value,
+                status: document.getElementById('changeStatus').value,
+                decisionMaker: document.getElementById('changeDecisionMaker').value,
+                decisionDate: document.getElementById('changeDecisionDate').value,
+                decision: document.getElementById('changeDecision').value
+            };
+            
+            if (id) {
+                const idx = changes.findIndex(c => c.id === parseInt(id));
+                changes[idx] = { ...changes[idx], ...data };
+            } else {
+                changes.push({ id: Date.now(), ...data });
+            }
+            
+            saveToStorage();
+            closeChangeModal();
+            render();
+        }
+
+        function deleteChange(id) {
+            if (confirm('Удалить запись?')) {
+                changes = changes.filter(c => c.id !== id);
+                saveToStorage();
+                render();
+            }
+        }
+
+        // ========== ПРОБЛЕМЫ ==========
+        function renderIssues() {
+            const filtered = issues.filter(i => {
+                // Здесь можно добавить фильтры
+                return true;
+            });
+
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⚠️ Все проблемы (${filtered.length})</div>
+                        <div>
+                            <button class="btn btn-secondary" onclick="exportIssues()">📤 Выгрузить</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Подрядчик</th>
+                                <th>Классификатор</th>
+                                <th>Влияет на</th>
+                                <th>Описание</th>
+                                <th>Дата</th>
+                                <th>Срок</th>
+                                <th>Статус</th>
+                                <th>Приоритет</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtered.map(i => `
+                                <tr>
+                                    <td><strong style="color: var(--sber-green);">${i.id}</strong></td>
+                                    <td>${i.contractorName}</td>
+                                    <td><span class="badge badge-info">${i.classifier}</span></td>
+                                    <td style="font-family: monospace; font-size: 0.85em;">${i.affectedDoc || '—'}</td>
+                                    <td>${i.desc}</td>
+                                    <td>${formatDate(i.date)}</td>
+                                    <td><strong>${formatDate(i.dueDate)}</strong></td>
+                                    <td>
+                                        <select class="form-select" onchange="updateIssueStatus('${i.id}', this.value)" style="font-size: 0.85em;">
+                                            ${['Новая', 'В работе', 'Требует решения', 'На согласовании', 'Решено', 'Отменено', 'Отложено']
+                                                .map(s => `<option value="${s}" ${i.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-select" onchange="updateIssuePriority('${i.id}', this.value)" style="font-size: 0.85em;">
+                                            ${['Критический', 'Высокий', 'Средний', 'Низкий']
+                                                .map(p => `<option value="${p}" ${i.priority === p ? 'selected' : ''}>${p}</option>`).join('')}
+                                        </select>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openIssueModal(contractorId, docCode = '', docName = '') {
+            const c = CONTRACTORS.find(x => x.id === contractorId);
+            const modal = document.getElementById('issueModal');
+            
+            // Генерация ID
+            const prefix = c.prefix;
+            const existing = issues.filter(i => i.id.startsWith(prefix + '-'));
+            const maxNum = Math.max(0, ...existing.map(i => {
+                const match = i.id.match(/-(\d+)$/);
+                return match ? parseInt(match[1]) : 0;
+            }));
+            const newId = `${prefix}-${String(maxNum + 1).padStart(2, '0')}`;
+            
+            document.getElementById('issueContractorId').value = contractorId;
+            document.getElementById('issueContractorName').value = c.name;
+            document.getElementById('issueId').value = newId;
+            document.getElementById('issueDocCode').value = docCode;
+            document.getElementById('issueDocName').value = docName;
+            document.getElementById('issueAffectedDoc').value = docCode ? `${docCode} - ${docName}` : 'Общая проблема';
+            document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('issueDueDate').value = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
+            document.getElementById('issueDesc').value = '';
+            
+            modal.classList.add('active');
+        }
+
+        function closeIssueModal() {
+            document.getElementById('issueModal').classList.remove('active');
+        }
+
+        function saveIssue(e) {
+            e.preventDefault();
+            
+            const contractorId = parseInt(document.getElementById('issueContractorId').value);
+            const c = CONTRACTORS.find(x => x.id === contractorId);
+            
+            const newIssue = {
+                id: document.getElementById('issueId').value,
+                contractorId: contractorId,
+                contractorName: c.name,
+                classifier: document.getElementById('issueClassifier').value,
+                affectedDoc: document.getElementById('issueDocCode').value,
+                desc: document.getElementById('issueDesc').value,
+                date: document.getElementById('issueDate').value,
+                dueDate: document.getElementById('issueDueDate').value,
+                status: document.getElementById('issueStatus').value,
+                priority: document.getElementById('issuePriority').value
+            };
+            
+            issues.push(newIssue);
+            saveToStorage();
+            closeIssueModal();
+            render();
+            
+            if (confirm('Проблема сохранена. Выгрузить в Google Sheets?')) {
+                exportIssues();
+            }
+        }
+
+        function updateIssueStatus(id, status) {
+            const i = issues.find(x => x.id === id);
+            if (i) {
+                i.status = status;
+                saveToStorage();
+                render();
+            }
+        }
+
+        function updateIssuePriority(id, priority) {
+            const i = issues.find(x => x.id === id);
+            if (i) {
+                i.priority = priority;
+                saveToStorage();
+                render();
+            }
+        }
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+        function formatDate(d) {
+            if (!d) return '—';
+            const date = new Date(d);
+            return isNaN(date) ? d : date.toLocaleDateString('ru-RU');
+        }
+
+        function renderStatusBadge(s) {
+            if (['Решено', 'Одобрено', 'Внесено'].includes(s)) return `<span class="badge badge-success">${s}</span>`;
+            if (['На рассмотрении', 'В работе', 'На согласовании'].includes(s)) return `<span class="badge badge-warning">${s}</span>`;
+            if (['Отклонено', 'Отменено'].includes(s)) return `<span class="badge badge-danger">${s}</span>`;
+            return `<span class="badge badge-info">${s}</span>`;
+        }
+
+        function renderPriorityBadge(p) {
+            if (p === 'Критический') return `<span class="badge" style="background: #FEE2E2; color: #991B1B; font-weight: 600;">🔴 ${p}</span>`;
+            if (p === 'Высокий') return `<span class="badge" style="background: #FEF3C7; color: #92400E; font-weight: 600;">🟡 ${p}</span>`;
+            if (p === 'Средний') return `<span class="badge" style="background: #D1FAE5; color: #065F46; font-weight: 600;">🟢 ${p}</span>`;
+            return `<span class="badge badge-info">🔵 ${p}</span>`;
+        }
+
+        // ========== ЭКСПОРТ ==========
+        function exportMDR() {
+            const active = mdrData.filter(m => !m.isCancelled);
+            let csv = 'Зона;Шифр АИ;Шифр комплекта;Наименование;Подрядчик;Промежуточный статус;Статус согласования\n';
+            
+            active.forEach(m => {
+                csv += `${m.zone};${m.discipline};${m.docCode};"${m.docName}";${m.contractorName};"${m.intermediateStatus}";"${m.finalStatus}"\n`;
+            });
+            
+            downloadCSV(csv, `MDR_${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        function exportIssues() {
+            let csv = 'ID;Подрядчик;Классификатор;Влияет на;Описание;Дата выявления;Срок решения;Статус;Приоритет\n';
+            
+            issues.forEach(i => {
+                csv += `${i.id};${i.contractorName};${i.classifier};"${i.affectedDoc || ''}";"${i.desc}";${i.date};${i.dueDate};${i.status};${i.priority}\n`;
+            });
+            
+            downloadCSV(csv, `Проблемы_${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+
+        // ========== ЗАКРЫТИЕ МОДАЛОВ ==========
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'changeModal') closeChangeModal();
+            if (e.target.id === 'issueModal') closeIssueModal();
+        });
+
+        // ========== СТАРТ ==========
+        window.onload = init;
+    </script>
+</body>
+</html>
