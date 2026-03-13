@@ -954,100 +954,139 @@ async function loadMDRFromSheets() {
             render();
         }
 
-        // ========== 1. ДАШБОРД СО СТАТИСТИКОЙ ==========
-        function renderDashboard() {
-            // Статистика по статусам (колонка M)
-            const statusStats = {};
-            mdrData.forEach(m => {
-                const status = m.finalStatus || 'Не указан';
-                statusStats[status] = (statusStats[status] || 0) + 1;
-            });
+// ========== 1. ДАШБОРД СО СТАТИСТИКОЙ ==========
+function renderDashboard() {
+    // Используем отфильтрованные данные
+    const filteredData = getFilteredMDRData();
+    
+    // Статистика по статусам из отфильтрованных данных
+    const statusStats = {};
+    filteredData.forEach(m => {
+        const status = m.finalStatus || 'Не указан';
+        statusStats[status] = (statusStats[status] || 0) + 1;
+    });
 
-            // Уникальные шифры разделов (колонка B)
-            const disciplines = [...new Set(mdrData.map(m => m.discipline).filter(Boolean))].sort();
+    // Уникальные шифры разделов и документов
+    const allDisciplines = [...new Set(mdrData.map(m => m.discipline).filter(Boolean))].sort();
+    const allDocCodes = [...new Set(mdrData.map(m => m.docCode).filter(Boolean))].sort();
 
-            // Применяем фильтр
-            let filteredData = mdrData;
-            if (disciplineFilter !== 'all') {
-                filteredData = mdrData.filter(m => m.discipline === disciplineFilter);
-            }
+    // Статистика по подрядчикам только для АИ и только из отфильтрованных
+    const contractorStats = CONTRACTORS.map(c => {
+        const docs = aiDocs.filter(d => {
+            if (d.contractorId !== c.id) return false;
+            // Применяем те же фильтры
+            if (disciplineFilter !== 'all' && d.discipline !== disciplineFilter) return false;
+            if (docCodeFilter !== 'all' && d.docCode !== docCodeFilter) return false;
+            return true;
+        });
+        
+        const avgProgress = docs.length > 0 
+            ? Math.round(docs.reduce((sum, d) => sum + (getDocProgress(d.id) || 0), 0) / docs.length)
+            : 0;
+        const holdCount = docs.filter(d => isDocHold(d.id)).length;
+        
+        return { ...c, docs, avgProgress, holdCount };
+    }).filter(c => c.docs.length > 0 || (disciplineFilter === 'all' && docCodeFilter === 'all'));
 
-            return `
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">📊 Статистика по статусам комплектов (колонка M)</div>
-                    </div>
-                    
-                    <div class="filter-bar">
-                        <label>Фильтр по шифру раздела (колонка B):</label>
-                        <select class="form-select" style="width: 300px;" onchange="updateDisciplineFilter(this.value)">
-                            <option value="all">Все разделы</option>
-                            ${disciplines.map(d => `<option value="${d}" ${disciplineFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
-                        </select>
-                        ${disciplineFilter !== 'all' ? `<button class="btn btn-secondary" onclick="updateDisciplineFilter('all')">Сбросить</button>` : ''}
-                    </div>
-
-                    <div class="stats-grid">
-                        ${Object.entries(statusStats).map(([status, count]) => `
-                            <div class="stat-card">
-                                <div class="stat-label">${status}</div>
-                                <div class="stat-value" style="${getStatusColor(status)}">${count}</div>
-                                <div class="stat-label">комплектов</div>
-                            </div>
-                        `).join('')}
-                    </div>
-
-                    <div class="card" style="margin-top: 20px;">
-                        <div class="card-header">
-                            <div class="card-title">📈 Распределение по подрядчикам АИ</div>
-                        </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Подрядчик</th>
-                                    <th>Кол-во комплектов</th>
-                                    <th>Средний прогресс</th>
-                                    <th>HOLD</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${CONTRACTORS.map(c => {
-                                    const docs = aiDocs.filter(d => d.contractorId === c.id);
-                                    const avgProgress = docs.length > 0 
-                                        ? Math.round(docs.reduce((sum, d) => sum + (getDocProgress(d.id) || 0), 0) / docs.length)
-                                        : 0;
-                                    const holdCount = docs.filter(d => isDocHold(d.id)).length;
-                                    return `
-                                        <tr>
-                                            <td><strong>${c.name}</strong></td>
-                                            <td>${docs.length}</td>
-                                            <td>
-                                                <div class="progress-container" style="height: 20px; width: 150px;">
-                                                    <div class="progress-bar" style="width: ${avgProgress}%">${avgProgress}%</div>
-                                                </div>
-                                            </td>
-                                            <td>${holdCount > 0 ? `<span class="badge badge-hold">${holdCount} HOLD</span>` : '—'}</td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
+    return `
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📊 Статистика по статусам комплектов</div>
+                <span class="badge badge-info">Показано: ${filteredData.length} записей</span>
+            </div>
+            
+            <div class="filter-bar" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; color: var(--sber-text-light); font-size: 0.9em;">Шифр раздела:</label>
+                    <select class="form-select" onchange="updateDisciplineFilter(this.value)">
+                        <option value="all">Все разделы</option>
+                        ${allDisciplines.map(d => `<option value="${d}" ${disciplineFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
+                    </select>
                 </div>
-            `;
-        }
+                <div>
+                    <label style="display: block; margin-bottom: 4px; color: var(--sber-text-light); font-size: 0.9em;">Шифр документа (комплект):</label>
+                    <select class="form-select" onchange="updateDocCodeFilter(this.value)">
+                        <option value="all">Все комплекты</option>
+                        ${allDocCodes.map(d => `<option value="${d}" ${docCodeFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" onclick="resetDashboardFilters()" style="height: fit-content;">Сбросить все</button>
+                </div>
+            </div>
 
-        function getStatusColor(status) {
-            if (status.includes('согласован') || status.includes('выпущен')) return 'color: var(--sber-green);';
-            if (status.includes('работе')) return 'color: var(--sber-blue);';
-            if (status.includes('доработк')) return 'color: var(--sber-yellow);';
-            return 'color: var(--sber-text);';
-        }
+            <div class="stats-grid" style="margin-top: 20px;">
+                ${Object.entries(statusStats).length > 0 ? Object.entries(statusStats).map(([status, count]) => `
+                    <div class="stat-card">
+                        <div class="stat-label">${status}</div>
+                        <div class="stat-value" style="${getStatusColor(status)}">${count}</div>
+                        <div class="stat-label">комплектов</div>
+                    </div>
+                `).join('') : '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--sber-text-light);">Нет данных для выбранных фильтров</div>'}
+            </div>
 
-        function updateDisciplineFilter(value) {
-            disciplineFilter = value;
-            render();
-        }
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <div class="card-title">📈 Распределение по подрядчикам АИ ${(disciplineFilter !== 'all' || docCodeFilter !== 'all') ? '(отфильтровано)' : ''}</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Подрядчик</th>
+                            <th>Кол-во комплектов</th>
+                            <th>Средний прогресс</th>
+                            <th>HOLD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${contractorStats.map(c => `
+                            <tr>
+                                <td><strong>${c.name}</strong></td>
+                                <td>${c.docs.length}</td>
+                                <td>
+                                    <div class="progress-container" style="height: 20px; width: 150px;">
+                                        <div class="progress-bar" style="width: ${c.avgProgress}%">${c.avgProgress}%</div>
+                                    </div>
+                                </td>
+                                <td>${c.holdCount > 0 ? `<span class="badge badge-hold">${c.holdCount} HOLD</span>` : '—'}</td>
+                            </tr>
+                        `).join('') || '<tr><td colspan="4" style="text-align: center;">Нет данных для выбранных фильтров</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function resetDashboardFilters() {
+    disciplineFilter = 'all';
+    docCodeFilter = 'all';
+    render();
+}}
+
+       // ========== ФИЛЬТР ПО КОМПЛЕКТУ ДЛЯ АНАЛИТИКИ ==========
+let docCodeFilter = 'all';
+
+function updateDocCodeFilter(value) {
+    docCodeFilter = value;
+    render();
+}
+
+function getFilteredMDRData() {
+    let data = mdrData;
+    
+    // Фильтр по шифру раздела (дискиплина)
+    if (disciplineFilter !== 'all') {
+        data = data.filter(m => m.discipline === disciplineFilter);
+    }
+    
+    // Фильтр по шифру документа (комплект)
+    if (docCodeFilter !== 'all') {
+        data = data.filter(m => m.docCode === docCodeFilter);
+    }
+    
+    return data;
+}
 
         // ========== 2. ВСЕ MDR С ГРУППИРОВКОЙ ==========
         function renderAllMDR() {
@@ -1834,6 +1873,7 @@ async function loadMDRFromSheets() {
     </script>
 </body>
 </html>
+
 
 
 
