@@ -774,7 +774,6 @@
                 messages: {
                     noData: 'Нет данных для выбранных фильтров',
                     noIssues: 'Проблем нет 🎉',
-                    offlineMode: 'Работаем в офлайн-режиме (демо-данные)',
                     searchDocCode: 'Поиск по шифру комплекта...',
                     searchIssueId: 'Поиск по ID проблемы...'
                 },
@@ -831,7 +830,6 @@
                 messages: {
                     noData: 'No data for selected filters',
                     noIssues: 'No issues 🎉',
-                    offlineMode: 'Working offline (demo data)',
                     searchDocCode: 'Search by document code...',
                     searchIssueId: 'Search by issue ID...'
                 },
@@ -958,11 +956,7 @@
             updateSyncStatus('syncing', currentLang === 'ru' ? 'Синхронизация...' : 'Syncing...');
             
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-                
-                await loadMDRFromSheets(controller.signal);
-                clearTimeout(timeoutId);
+                await loadMDRFromSheets();
                 
                 lastSync = new Date();
                 updateSyncStatus('ok', (currentLang === 'ru' ? 'Синхронизировано: ' : 'Synced: ') + lastSync.toLocaleTimeString(currentLang === 'ru' ? 'ru-RU' : 'en-US'));
@@ -971,23 +965,14 @@
             } catch (error) {
                 console.error('Sync error:', error);
                 syncError = error.message;
-                
-                if (error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    updateSyncStatus('warning', t('messages.offlineMode'));
-                    loadDemoData();
-                    render();
-                } else {
-                    updateSyncStatus('error', 'Error: ' + error.message);
-                    loadDemoData();
-                    render();
-                }
+                updateSyncStatus('error', 'Error: ' + error.message);
             }
         }
 
-        async function loadMDRFromSheets(signal) {
+        async function loadMDRFromSheets() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
             
-            const response = await fetch(url, { signal });
+            const response = await fetch(url);
             if (!response.ok) {
                 if (response.status === 403) throw new Error(currentLang === 'ru' ? 'Доступ запрещен' : 'Access denied');
                 if (response.status === 404) throw new Error(currentLang === 'ru' ? 'Таблица не найдена' : 'Table not found');
@@ -1039,54 +1024,6 @@
                     aiDocs.push(doc);
                 }
             }
-            
-            if (aiDocs.length === 0) loadDemoAIDocs();
-        }
-
-        function loadDemoData() {
-            loadDemoAIDocs();
-            
-            const demoNonAI = [
-                { id: 1001, zone: 'Генеральный план', discipline: 'ГП', docCode: 'КУТ03-Р-ПИР-2-26-100-ГП1.00.00', docName: 'Генеральный план', finalStatus: 'В работе', isAI: false, contractorName: 'МАРКС' },
-                { id: 1002, zone: 'Генеральный план', discipline: 'СГП', docCode: 'КУТ03-Р-ПИР-2-26-100-СГП.00.00', docName: 'Стройгенплан', finalStatus: 'В работе', isAI: false, contractorName: 'МАРКС' }
-            ];
-            
-            mdrData = [...aiDocs, ...demoNonAI];
-        }
-
-        function loadDemoAIDocs() {
-            const demoDocs = [
-                { id: 201, contractorId: 2, zone: "Банк МВСП", docCode: "КУТ03-Р-ПИР-2-26-110-АИ01.02.01", docName: "Том 1. Книга 1. «Архитектурные решения интерьеров. Банк МВСП. 1 этаж»", tom: "Том 1", book: "Книга 1", plan30: "2026-02-20", plan60: "2026-03-15", plan90: "2026-08-28", startDate: "2026-01-12", progress: 0, isAI: true },
-                { id: 206, contractorId: 2, zone: "Банк МВСП", docCode: "КУТ03-Р-ПИР-2-26-110-АИ.02.01", docName: "Том 1. Книга 2. «Архитектурные решения интерьеров. Банк МВСП. Развертки стен»", tom: "Том 1", book: "Книга 2", plan30: "2026-02-20", plan60: "2026-03-15", plan90: "2026-08-28", startDate: "2026-01-12", progress: 0, isAI: true },
-                { id: 514, contractorId: 3, zone: "МФЗ", docCode: "КУТ03-Р-ПИР-4-26-120-АИ01.02.04", docName: "Архитектурные решения интерьеров. Многофункциональный зал", tom: "Том 1", book: "Книга 1", plan30: "2026-02-25", plan60: "2026-03-20", plan90: "2026-06-19", startDate: "2026-01-12", progress: 0, isAI: true },
-                { id: 644, contractorId: 4, zone: "Визитор-центр", docCode: "КУТ03-Р-ПИР-4-26-Р-120-АИ01.02.07", docName: "Архитектурные решения интерьеров. Визитор центр", tom: "Том 1", book: "Книга 1", plan30: "2026-02-20", plan60: "2026-03-15", plan90: "2026-06-19", startDate: "2026-01-12", progress: 0, isAI: true },
-                { id: 619, contractorId: 5, zone: "Медиацентр", docCode: "КУТ03-Р-ПИР-4-26-120-АИ01.02.06", docName: "Архитектурные решения интерьеров. Медиа центр", tom: "Том 1", book: "Книга 1", plan30: "2026-03-15", plan60: "2026-05-01", plan90: "2026-12-07", startDate: "2026-01-12", progress: 0, isAI: true },
-                { id: 666, contractorId: 6, zone: "Спорткомплекс", docCode: "КУТ03-Р-ПИР-2-26-120-АИ01.02.09", docName: "Архитектурные решения интерьеров. Спорткомплекс", tom: "Том 1", book: "Книга 1", plan30: "2026-03-01", plan60: "2026-04-15", plan90: "2026-08-28", startDate: "2026-01-12", progress: 0, isAI: true }
-            ];
-            
-            demoDocs.forEach(d => {
-                const c = CONTRACTORS.find(x => x.id === d.contractorId);
-                d.contractorName = c ? c.name : 'Unknown';
-            });
-            
-            aiDocs = demoDocs;
-            
-            demoDocs.forEach(d => {
-                if (!contractorSettings[d.contractorId]) {
-                    contractorSettings[d.contractorId] = { docs: {}, weeklyReportDate: new Date().toISOString().split('T')[0] };
-                }
-                if (!contractorSettings[d.contractorId].docs[d.id]) {
-                    contractorSettings[d.contractorId].docs[d.id] = {
-                        progress: d.progress || 0,
-                        plan30: d.plan30,
-                        plan60: d.plan60,
-                        plan90: d.plan90,
-                        isHold: false
-                    };
-                }
-            });
-            
-            mdrData = [...demoDocs];
         }
 
         function findContractor(zone) {
@@ -2310,54 +2247,7 @@
         });
 
         // ========== СТАРТ ==========
-        window.onload = function() {
-            init();
-            if (issues.filter(i => i.contractorId === 3).length === 0) {
-                loadFitOutProDemoIssues();
-                render();
-            }
-        };
-
-        function loadFitOutProDemoIssues() {
-            const fitOutIssues = [
-                { classifier: 'BIM', desc: 'В модели есть и помещения и пространства. На основе чего следует формировать экспликации?', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Можно ли менять шаблоны для видов, размещенных на листах в комплектах Р?', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Можно ли удалять лишние материалы?', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'Проектные решения', desc: 'Просим уточнить границу помещения сцены. Не понятно какой конфигурации перегородка', affectedDoc: 'МФЗ - Зона 4' },
-                { classifier: 'Материалы', desc: 'В альбоме дизайна от авторов концепции отсутствует описание отделки WF-9', affectedDoc: 'МФЗ - Зона 4' }
-            ];
-
-            const contractor = CONTRACTORS.find(c => c.id === 3);
-            let counter = 1;
-            const existingFP = issues.filter(i => i.id.startsWith('FP-'));
-            const maxNum = existingFP.reduce((max, i) => {
-                const num = parseInt(i.id.split('-')[1]) || 0;
-                return Math.max(max, num);
-            }, 0);
-            counter = maxNum + 1;
-
-            const newIssues = fitOutIssues.map((issue, idx) => ({
-                id: `FP-${counter + idx}`,
-                contractorId: 3,
-                contractorName: contractor.name,
-                classifier: issue.classifier,
-                affectedDoc: issue.affectedDoc,
-                desc: issue.desc,
-                date: '2026-03-12',
-                dueDate: '2026-03-26',
-                status: 'Новая',
-                priority: 'Средний',
-                comments: ''
-            }));
-
-            const existingDescs = new Set(issues.map(i => i.desc));
-            const uniqueNewIssues = newIssues.filter(i => !existingDescs.has(i.desc));
-            
-            issues = [...issues, ...uniqueNewIssues];
-            saveToStorage();
-        }
+        window.onload = init;
     </script>
 </body>
 </html>
-
-
