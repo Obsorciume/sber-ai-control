@@ -734,73 +734,81 @@
             }
         }
 
-        async function loadMDRFromSheets() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
-            
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            const rows = data.values || [];
-            
-            if (rows.length < 3) {
-                throw new Error('Недостаточно данных в таблице');
-            }
+async function loadMDRFromSheets() {
+    // УВЕЛИЧИЛИ ДИАПАЗОН до 5000 строк
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/MDR-РД!A1:M5000?key=${CONFIG.API_KEY}`;
+    
+    console.log('Загрузка из Google Sheets...');
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    const rows = data.values || [];
+    
+    console.log('Всего строк в таблице:', rows.length);
+    
+    if (rows.length < 3) {
+        throw new Error('Недостаточно данных в таблице');
+    }
 
-            mdrData = [];
-            aiDocs = [];
-            
-            // Парсим начиная со строки 3 (индекс 2) - пропускаем заголовки
-            for (let i = 2; i < rows.length; i++) {
-                const row = rows[i];
-                if (!row || row.length < 13) continue;
-                
-                const zone = (row[0] || '').toString().trim();
-                const discipline = (row[1] || '').toString().trim();  // Колонка B - шифр раздела
-                const docCode = (row[4] || '').toString().trim();      // Колонка E - шифр документа
-                const docName = (row[5] || '').toString().trim();      // Колонка F - название
-                const intermediateStatus = (row[11] || '').toString().trim(); // Колонка L
-                const finalStatus = (row[12] || '').toString().trim();          // Колонка M
-                
-                // Определяем подрядчика по зоне
-                const contractor = findContractor(zone);
-                
-                const doc = {
-                    id: i,
-                    zone: zone,
-                    discipline: discipline,
-                    docCode: docCode,
-                    docName: docName,
-                    intermediateStatus: intermediateStatus,
-                    finalStatus: finalStatus,
-                    contractorId: contractor?.id,
-                    contractorName: contractor?.name || 'Не определен',
-                    isAI: discipline.includes('АИ') || discipline.includes('AI'),
-                    planDate: null // Будет заполнено для АИ из настроек подрядчика
-                };
-                
-                mdrData.push(doc);
-                
-                // Если это документ АИ и есть подрядчик - добавляем в aiDocs
-                if (doc.isAI && contractor) {
-                    // Подтягиваем плановую дату из настроек подрядчика если есть
-                    const settings = contractorSettings[contractor.id]?.docs[doc.id];
-                    if (settings) {
-                        doc.planDate = settings.plan90 || settings.planDate;
-                        doc.progress = settings.progress || 0;
-                        doc.isHold = settings.isHold || false;
-                    }
-                    aiDocs.push(doc);
-                }
-            }
-            
-            // Инициализация демо-данных для АИ если нет реальных
-            if (aiDocs.length === 0) {
-                loadDemoAIDocs();
-            }
+    mdrData = [];
+    aiDocs = [];
+    
+    // Парсим начиная со строки 3 (индекс 2) — пропускаем 2 заголовка
+    for (let i = 2; i < rows.length; i++) {
+        const row = rows[i];
+        
+        // Пропускаем пустые строки
+        if (!row || row.length === 0) continue;
+        
+        const zone = (row[0] || '').toString().trim();
+        const discipline = (row[1] || '').toString().trim();
+        const docCode = (row[4] || '').toString().trim();
+        const docName = (row[5] || '').toString().trim();
+        const intermediateStatus = row[11] ? row[11].toString().trim() : '';
+        const finalStatus = row[12] ? row[12].toString().trim() : '';
+        
+        // ГИБКАЯ ПРОВЕРКА: АИ может быть в колонке B ИЛИ в шифре документа (E)
+        const isAI = discipline.toUpperCase().includes('АИ') || 
+                     discipline.toUpperCase().includes('AI') ||
+                     docCode.toUpperCase().includes('АИ') ||
+                     docCode.toUpperCase().includes('AI');
+        
+        // Определяем подрядчика по зоне
+        const contractor = findContractor(zone);
+        
+        const doc = {
+            id: i,
+            zone: zone,
+            discipline: discipline,
+            docCode: docCode,
+            docName: docName,
+            intermediateStatus: intermediateStatus,
+            finalStatus: finalStatus,
+            contractorId: contractor?.id,
+            contractorName: contractor?.name || 'Не определен',
+            isAI: isAI
+        };
+        
+        mdrData.push(doc);
+        
+        // Если это АИ и есть подрядчик — добавляем в список подрядчика
+        if (isAI && contractor) {
+            aiDocs.push(doc);
         }
+    }
+    
+    console.log(`Загружено: ${mdrData.length} всего, ${aiDocs.length} АИ с подрядчиком`);
+    
+    // Если нет АИ — демо-данные
+    if (aiDocs.length === 0) {
+        console.warn('АИ не найдены, загружаем демо');
+        loadDemoAIDocs();
+    }
+}
 
         function loadDemoData() {
             // Демо-данные для тестирования без API
@@ -1828,3 +1836,4 @@
     </script>
 </body>
 </html>
+
