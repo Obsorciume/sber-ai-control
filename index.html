@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>СберКонтроль АИ | Управление проектом</title>
     <style>
         :root {
@@ -72,6 +72,33 @@
             font-weight: 600;
         }
 
+        /* Переключатель языка */
+        .lang-switcher {
+            display: flex;
+            background: var(--sber-gray);
+            border-radius: 20px;
+            padding: 4px;
+            gap: 4px;
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--sber-text-light);
+            transition: all 0.3s;
+        }
+        .lang-btn.active {
+            background: var(--sber-green);
+            color: white;
+        }
+        .lang-btn:hover:not(.active) {
+            color: var(--sber-green);
+        }
+
         /* Синхронизация */
         .sync-panel {
             background: linear-gradient(135deg, var(--sber-green-light), white);
@@ -91,6 +118,7 @@
             margin-right: 8px;
         }
         .sync-indicator.error { background: var(--sber-red); }
+        .sync-indicator.warning { background: var(--sber-yellow); animation: pulse 2s infinite; }
         .sync-indicator.syncing { background: var(--sber-yellow); animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
@@ -147,6 +175,8 @@
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--sber-border);
+            flex-wrap: wrap;
+            gap: 12px;
         }
         .card-title {
             color: var(--sber-text);
@@ -169,11 +199,14 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            text-decoration: none;
         }
         .btn-primary { background: var(--sber-green); color: white; }
         .btn-primary:hover { background: var(--sber-green-dark); }
         .btn-secondary { background: var(--sber-gray); color: var(--sber-text); border: 1px solid var(--sber-border); }
         .btn-danger { background: #FEE2E2; color: var(--sber-red); }
+        .btn-export { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
+        .btn-export:hover { background: #3B82F6; color: white; }
 
         /* Таблицы */
         .data-table {
@@ -419,9 +452,107 @@
             font-size: 0.85em;
         }
 
+        /* Уровни готовности в отчете */
+        .level-30 { background: var(--sber-orange) !important; }
+        .level-60 { background: var(--sber-yellow) !important; color: #333 !important; }
+        .level-90 { background: var(--sber-green) !important; }
+
+        /* Поиск */
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-box input {
+            padding-right: 30px;
+        }
+        .search-clear {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--sber-text-light);
+            font-size: 1.2em;
+        }
+
+        /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
         @media (max-width: 768px) {
-            .contact-card { grid-template-columns: 1fr; text-align: center; }
+            body { padding: 8px; }
+            .container { padding: 12px; border-radius: 12px; }
+            
+            .main-header { 
+                flex-direction: column; 
+                gap: 12px; 
+                text-align: center;
+            }
+            .main-header h1 { font-size: 1.2em; }
+            
+            .sync-panel { 
+                flex-direction: column; 
+                gap: 12px;
+                text-align: center;
+            }
+            
+            .tabs { 
+                flex-direction: column; 
+                gap: 4px;
+            }
+            .tab { 
+                width: 100%; 
+                justify-content: center;
+                padding: 10px;
+            }
+            
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .stat-value { font-size: 1.8em; }
+            
+            .contact-card { 
+                grid-template-columns: 1fr; 
+                text-align: center;
+                gap: 12px;
+            }
+            .contact-avatar { margin: 0 auto; }
+            .zones-list { justify-content: center; }
+            
             .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-bar > * { width: 100% !important; max-width: none !important; }
+            
+            .data-table { font-size: 0.75em; }
+            .data-table th, .data-table td { padding: 8px 4px; }
+            
+            .doc-card > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            
+            .weekly-report .date-selector { flex-direction: column; align-items: stretch; }
+            
+            .modal { 
+                width: 95%; 
+                padding: 16px; 
+                margin: 10px;
+                max-height: 95vh;
+            }
+            .form-row[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .lang-switcher {
+                order: -1;
+                margin-bottom: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .sber-logo { width: 40px; height: 40px; font-size: 20px; }
+            .tab { font-size: 0.9em; padding: 8px 12px; }
+            .btn { padding: 8px 12px; font-size: 0.85em; }
         }
     </style>
 </head>
@@ -597,14 +728,148 @@
     </div>
 
     <script>
+        // ========== МУЛЬТИЯЗЫЧНОСТЬ ==========
+        const TRANSLATIONS = {
+            ru: {
+                title: 'Управление проектом АИ (Дизайн интерьеров)',
+                subtitle: 'К32, Кутузовский пр-т 32 | Интеграция с Google Sheets',
+                tabs: {
+                    dashboard: '📊 Статистика MDR',
+                    allMDR: '📋 Все MDR',
+                    changes: '📝 Изменения',
+                    issues: '⚠️ Проблемы'
+                },
+                buttons: {
+                    sync: '🔄 Синхронизировать',
+                    export: '📤 Выгрузить',
+                    exportProject: '📊 MS Project',
+                    add: '➕ Добавить',
+                    save: '💾 Сохранить',
+                    cancel: 'Отмена',
+                    clear: 'Очистить',
+                    search: 'Поиск...'
+                },
+                table: {
+                    contractor: 'Подрядчик',
+                    docCode: 'Шифр документа',
+                    discipline: 'Шифр раздела',
+                    name: 'Наименование',
+                    progress: 'Прогресс',
+                    status: 'Статус',
+                    date: 'Дата',
+                    priority: 'Приоритет',
+                    classifier: 'Классификатор',
+                    level30: '30% готовности',
+                    level60: '60% готовности',
+                    level90: '90% готовности'
+                },
+                statuses: {
+                    new: 'Новая',
+                    inProgress: 'В работе',
+                    resolved: 'Решено',
+                    hold: 'HOLD',
+                    approved: 'Одобрено',
+                    rejected: 'Отклонено'
+                },
+                messages: {
+                    noData: 'Нет данных для выбранных фильтров',
+                    noIssues: 'Проблем нет 🎉',
+                    offlineMode: 'Работаем в офлайн-режиме (демо-данные)',
+                    searchDocCode: 'Поиск по шифру комплекта...',
+                    searchIssueId: 'Поиск по ID проблемы...'
+                },
+                report: {
+                    title: 'Отчет по контрольным датам (7 дней)',
+                    dateFrom: 'Дата отсчета',
+                    to: '→',
+                    count: 'комплектов',
+                    action: 'Действие',
+                    addIssue: '➕ Проблема'
+                }
+            },
+            en: {
+                title: 'Interior Design Project Management',
+                subtitle: 'K32, Kutuzovsky Prospekt 32 | Google Sheets Integration',
+                tabs: {
+                    dashboard: '📊 MDR Statistics',
+                    allMDR: '📋 All MDR',
+                    changes: '📝 Changes',
+                    issues: '⚠️ Issues'
+                },
+                buttons: {
+                    sync: '🔄 Sync',
+                    export: '📤 Export',
+                    exportProject: '📊 MS Project',
+                    add: '➕ Add',
+                    save: '💾 Save',
+                    cancel: 'Cancel',
+                    clear: 'Clear',
+                    search: 'Search...'
+                },
+                table: {
+                    contractor: 'Contractor',
+                    docCode: 'Doc Code',
+                    discipline: 'Discipline',
+                    name: 'Name',
+                    progress: 'Progress',
+                    status: 'Status',
+                    date: 'Date',
+                    priority: 'Priority',
+                    classifier: 'Classifier',
+                    level30: '30% Complete',
+                    level60: '60% Complete',
+                    level90: '90% Complete'
+                },
+                statuses: {
+                    new: 'New',
+                    inProgress: 'In Progress',
+                    resolved: 'Resolved',
+                    hold: 'HOLD',
+                    approved: 'Approved',
+                    rejected: 'Rejected'
+                },
+                messages: {
+                    noData: 'No data for selected filters',
+                    noIssues: 'No issues 🎉',
+                    offlineMode: 'Working offline (demo data)',
+                    searchDocCode: 'Search by document code...',
+                    searchIssueId: 'Search by issue ID...'
+                },
+                report: {
+                    title: 'Weekly Report (7 days)',
+                    dateFrom: 'Start date',
+                    to: 'to',
+                    count: 'documents',
+                    action: 'Action',
+                    addIssue: '➕ Issue'
+                }
+            }
+        };
+
+        let currentLang = localStorage.getItem('app_lang') || 'ru';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('app_lang', lang);
+            render();
+        }
+
+        function t(key) {
+            const keys = key.split('.');
+            let value = TRANSLATIONS[currentLang];
+            for (const k of keys) {
+                value = value?.[k];
+            }
+            return value || key;
+        }
+
         // ========== КОНФИГУРАЦИЯ ДЛЯ GITHUB ==========
-        // ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ ПРИ РАЗВЕРТЫВАНИИ
-const CONFIG = {
-    API_KEY: 'AIzaSyALuEu2c9Bb6CD4S1JtjwJ4z0XhvFWsZ6s',
-    SHEET_ID: '17_CmtpowQzh4LD9G8IxYErdS1BxOm7EeAN0foKe9pO8',
-    MDR_RANGE: 'MDR-РД!A1:M5000',
-    ISSUES_RANGE: 'Проблемы!A:I'
-};
+        const CONFIG = {
+            API_KEY: 'AIzaSyALuEu2c9Bb6CD4S1JtjwJ4z0XhvFWsZ6s',
+            SHEET_ID: '17_CmtpowQzh4LD9G8IxYErdS1BxOm7EeAN0foKe9pO8',
+            MDR_RANGE: 'MDR-РД!A1:M5000',
+            ISSUES_RANGE: 'Проблемы!A:I'
+        };
 
         // ========== ДАННЫЕ ==========
         const CONTRACTORS = [
@@ -615,66 +880,44 @@ const CONFIG = {
             { id: 6, name: 'Bohan Studio', prefix: 'BOH', shortName: 'BS', contact: 'Виктория Нагурная', phone: '+7 965 106 3111', zones: ['Спорткомплекс'] }
         ];
 
-        // Обновленные классификаторы с "Весь объект"
         const CLASSIFIERS = [
-            'Весь объект',      // Новый классификатор
-            'Согласование',
-            'ИРД', 
-            'BIM',
-            'Проектные решения',
-            'Тех.решения',
-            'Увязка',
-            'Сроки',
-            'Качество',
-            'Материалы',
-            'Обмеры',
-            'Конструкции',
-            'Инженерия',
-            'Навигация',
-            'Акустика',
-            'Освещение',
-            'Мебель',
-            'Декорирование',
-            'Закупка',
-            'Производство',
-            'Монтаж',
-            'Смета',
-            'Документация'
+            'Весь объект', 'Согласование', 'ИРД', 'BIM', 'Проектные решения',
+            'Тех.решения', 'Увязка', 'Сроки', 'Качество', 'Материалы',
+            'Обмеры', 'Конструкции', 'Инженерия', 'Навигация', 'Акустика',
+            'Освещение', 'Мебель', 'Декорирование', 'Закупка', 'Производство',
+            'Монтаж', 'Смета', 'Документация'
         ];
 
         // ========== СОСТОЯНИЕ ==========
         let currentTab = 1;
-        let mdrData = [];           // Все данные из Google Sheets
-        let aiDocs = [];            // Только документы АИ (для подрядчиков)
+        let mdrData = [];
+        let aiDocs = [];
         let issues = [];
         let changes = [];
         let lastSync = null;
         let syncError = null;
-        
-        // Настройки для каждого подрядчика (прогресс, даты, hold)
         let contractorSettings = {};
-        
-        // Фильтры
         let disciplineFilter = 'all';
+        let docCodeFilter = 'all';
         let expandedContractors = new Set();
+        let issueSearchFilter = '';
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         function init() {
             loadFromStorage();
             loadClassifiers();
             
-            // Инициализация настроек подрядчиков
             CONTRACTORS.forEach(c => {
                 if (!contractorSettings[c.id]) {
                     contractorSettings[c.id] = {
                         docs: {},
-                        weeklyReportDate: new Date().toISOString().split('T')[0]
+                        weeklyReportDate: new Date().toISOString().split('T')[0],
+                        searchFilter: ''
                     };
                 }
             });
             
             render();
-            // Загрузка данных из Google Sheets
             syncData();
         }
 
@@ -710,120 +953,108 @@ const CONFIG = {
             }
         }
 
-        // ========== СИНХРОНИЗАЦИЯ С GOOGLE SHEETS ==========
+        // ========== СИНХРОНИЗАЦИЯ ==========
         async function syncData() {
-            updateSyncStatus('syncing', 'Синхронизация с Google Sheets...');
+            updateSyncStatus('syncing', currentLang === 'ru' ? 'Синхронизация...' : 'Syncing...');
             
             try {
-                // Загрузка MDR
-                await loadMDRFromSheets();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                await loadMDRFromSheets(controller.signal);
+                clearTimeout(timeoutId);
                 
                 lastSync = new Date();
-                updateSyncStatus('ok', `Синхронизировано: ${lastSync.toLocaleTimeString('ru-RU')}`);
+                updateSyncStatus('ok', (currentLang === 'ru' ? 'Синхронизировано: ' : 'Synced: ') + lastSync.toLocaleTimeString(currentLang === 'ru' ? 'ru-RU' : 'en-US'));
                 render();
                 
             } catch (error) {
                 console.error('Sync error:', error);
                 syncError = error.message;
-                updateSyncStatus('error', 'Ошибка: ' + error.message);
-                // При ошибке используем демо-данные
-                loadDemoData();
-                render();
+                
+                if (error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    updateSyncStatus('warning', t('messages.offlineMode'));
+                    loadDemoData();
+                    render();
+                } else {
+                    updateSyncStatus('error', 'Error: ' + error.message);
+                    loadDemoData();
+                    render();
+                }
             }
         }
 
-async function loadMDRFromSheets() {
-    // УВЕЛИЧИЛИ ДИАПАЗОН до 5000 строк
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
-    
-    console.log('Загрузка из Google Sheets...');
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    const rows = data.values || [];
-    
-    console.log('Всего строк в таблице:', rows.length);
-    
-    if (rows.length < 3) {
-        throw new Error('Недостаточно данных в таблице');
-    }
+        async function loadMDRFromSheets(signal) {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
+            
+            const response = await fetch(url, { signal });
+            if (!response.ok) {
+                if (response.status === 403) throw new Error(currentLang === 'ru' ? 'Доступ запрещен' : 'Access denied');
+                if (response.status === 404) throw new Error(currentLang === 'ru' ? 'Таблица не найдена' : 'Table not found');
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const rows = data.values || [];
+            
+            if (rows.length < 3) throw new Error(currentLang === 'ru' ? 'Недостаточно данных' : 'Insufficient data');
 
-    mdrData = [];
-    aiDocs = [];
-    
-    // Парсим начиная со строки 3 (индекс 2) — пропускаем 2 заголовка
-    for (let i = 2; i < rows.length; i++) {
-        const row = rows[i];
-        
-        // Пропускаем пустые строки
-        if (!row || row.length === 0) continue;
-        
-        const zone = (row[0] || '').toString().trim();
-        const discipline = (row[1] || '').toString().trim();
-        const docCode = (row[4] || '').toString().trim();
-        const docName = (row[5] || '').toString().trim();
-        const intermediateStatus = row[11] ? row[11].toString().trim() : '';
-        const finalStatus = row[12] ? row[12].toString().trim() : '';
-        
-        // ГИБКАЯ ПРОВЕРКА: АИ может быть в колонке B ИЛИ в шифре документа (E)
-        const isAI = discipline.toUpperCase().includes('АИ') || 
-                     discipline.toUpperCase().includes('AI') ||
-                     docCode.toUpperCase().includes('АИ') ||
-                     docCode.toUpperCase().includes('AI');
-        
-        // Определяем подрядчика по зоне
-        const contractor = findContractor(zone);
-        
-        const doc = {
-            id: i,
-            zone: zone,
-            discipline: discipline,
-            docCode: docCode,
-            docName: docName,
-            intermediateStatus: intermediateStatus,
-            finalStatus: finalStatus,
-            contractorId: contractor?.id,
-            contractorName: contractor?.name || 'Не определен',
-            isAI: isAI
-        };
-        
-        mdrData.push(doc);
-        
-        // Если это АИ и есть подрядчик — добавляем в список подрядчика
-        if (isAI && contractor) {
-            aiDocs.push(doc);
+            mdrData = [];
+            aiDocs = [];
+            
+            for (let i = 2; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length === 0) continue;
+                
+                const zone = (row[0] || '').toString().trim();
+                const discipline = (row[1] || '').toString().trim();
+                const docCode = (row[4] || '').toString().trim();
+                const docName = (row[5] || '').toString().trim();
+                const intermediateStatus = row[11] ? row[11].toString().trim() : '';
+                const finalStatus = row[12] ? row[12].toString().trim() : '';
+                
+                const isAI = discipline.toUpperCase().includes('АИ') || 
+                             discipline.toUpperCase().includes('AI') ||
+                             docCode.toUpperCase().includes('АИ') ||
+                             docCode.toUpperCase().includes('AI');
+                
+                const contractor = findContractor(zone);
+                
+                const doc = {
+                    id: i,
+                    zone: zone,
+                    discipline: discipline,
+                    docCode: docCode,
+                    docName: docName,
+                    intermediateStatus: intermediateStatus,
+                    finalStatus: finalStatus,
+                    contractorId: contractor?.id,
+                    contractorName: contractor?.name || (currentLang === 'ru' ? 'Не определен' : 'Undefined'),
+                    isAI: isAI
+                };
+                
+                mdrData.push(doc);
+                
+                if (isAI && contractor) {
+                    aiDocs.push(doc);
+                }
+            }
+            
+            if (aiDocs.length === 0) loadDemoAIDocs();
         }
-    }
-    
-    console.log(`Загружено: ${mdrData.length} всего, ${aiDocs.length} АИ с подрядчиком`);
-    
-    // Если нет АИ — демо-данные
-    if (aiDocs.length === 0) {
-        console.warn('АИ не найдены, загружаем демо');
-        loadDemoAIDocs();
-    }
-}
-        
+
         function loadDemoData() {
-            // Демо-данные для тестирования без API
             loadDemoAIDocs();
             
-            // Добавляем не-АИ документы для статистики
             const demoNonAI = [
                 { id: 1001, zone: 'Генеральный план', discipline: 'ГП', docCode: 'КУТ03-Р-ПИР-2-26-100-ГП1.00.00', docName: 'Генеральный план', finalStatus: 'В работе', isAI: false, contractorName: 'МАРКС' },
-                { id: 1002, zone: 'Генеральный план', discipline: 'СГП', docCode: 'КУТ03-Р-ПИР-2-26-100-СГП.00.00', docName: 'Стройгенплан', finalStatus: 'В работе', isAI: false, contractorName: 'МАРКС' },
-                { id: 1003, zone: 'Стилобат', discipline: 'АР', docCode: 'КУТ03-Р-ПИР-2-26-100-АР01.01.00', docName: 'Архитектурные решения. Подземная автостоянка', finalStatus: 'В работе', isAI: false, contractorName: 'МАРКС' }
+                { id: 1002, zone: 'Генеральный план', discipline: 'СГП', docCode: 'КУТ03-Р-ПИР-2-26-100-СГП.00.00', docName: 'Стройгенплан', finalStatus: 'В работе', isAI: false, contractorName: 'МАРКС' }
             ];
             
             mdrData = [...aiDocs, ...demoNonAI];
         }
 
         function loadDemoAIDocs() {
-            // Демо-данные АИ из предыдущего файла
             const demoDocs = [
                 { id: 201, contractorId: 2, zone: "Банк МВСП", docCode: "КУТ03-Р-ПИР-2-26-110-АИ01.02.01", docName: "Том 1. Книга 1. «Архитектурные решения интерьеров. Банк МВСП. 1 этаж»", tom: "Том 1", book: "Книга 1", plan30: "2026-02-20", plan60: "2026-03-15", plan90: "2026-08-28", startDate: "2026-01-12", progress: 0, isAI: true },
                 { id: 206, contractorId: 2, zone: "Банк МВСП", docCode: "КУТ03-Р-ПИР-2-26-110-АИ.02.01", docName: "Том 1. Книга 2. «Архитектурные решения интерьеров. Банк МВСП. Развертки стен»", tom: "Том 1", book: "Книга 2", plan30: "2026-02-20", plan60: "2026-03-15", plan90: "2026-08-28", startDate: "2026-01-12", progress: 0, isAI: true },
@@ -833,15 +1064,13 @@ async function loadMDRFromSheets() {
                 { id: 666, contractorId: 6, zone: "Спорткомплекс", docCode: "КУТ03-Р-ПИР-2-26-120-АИ01.02.09", docName: "Архитектурные решения интерьеров. Спорткомплекс", tom: "Том 1", book: "Книга 1", plan30: "2026-03-01", plan60: "2026-04-15", plan90: "2026-08-28", startDate: "2026-01-12", progress: 0, isAI: true }
             ];
             
-            // Добавляем contractorName
             demoDocs.forEach(d => {
                 const c = CONTRACTORS.find(x => x.id === d.contractorId);
-                d.contractorName = c ? c.name : 'Неизвестно';
+                d.contractorName = c ? c.name : 'Unknown';
             });
             
             aiDocs = demoDocs;
             
-            // Инициализируем настройки для демо-данных
             demoDocs.forEach(d => {
                 if (!contractorSettings[d.contractorId]) {
                     contractorSettings[d.contractorId] = { docs: {}, weeklyReportDate: new Date().toISOString().split('T')[0] };
@@ -894,37 +1123,43 @@ async function loadMDRFromSheets() {
                         <div class="logo-area">
                             <div class="sber-logo"></div>
                             <div>
-                                <h1>Управление проектом АИ (Дизайн интерьеров)</h1>
-                                <p>К32, Кутузовский пр-т 32 | Интеграция с Google Sheets</p>
+                                <h1>${t('title')}</h1>
+                                <p>${t('subtitle')}</p>
                             </div>
                         </div>
-                        <span class="user-badge">👤 Администратор</span>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <div class="lang-switcher">
+                                <button onclick="setLanguage('ru')" class="lang-btn ${currentLang === 'ru' ? 'active' : ''}">🇷🇺 RU</button>
+                                <button onclick="setLanguage('en')" class="lang-btn ${currentLang === 'en' ? 'active' : ''}">🇬🇧 EN</button>
+                            </div>
+                            <span class="user-badge">👤 ${currentLang === 'ru' ? 'Администратор' : 'Admin'}</span>
+                        </div>
                     </div>
 
                     <div class="sync-panel">
                         <div>
                             <span id="syncIndicator" class="sync-indicator"></span>
-                            <span id="syncText">${syncError || 'Нажмите "Синхронизировать"'}</span>
+                            <span id="syncText">${syncError || (currentLang === 'ru' ? 'Нажмите "Синхронизировать"' : 'Click "Sync"')}</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-primary" onclick="syncData()">🔄 Синхронизировать</button>
-                            <button class="btn btn-secondary" onclick="exportIssues()">📤 Выгрузить проблемы</button>
+                            <button class="btn btn-primary" onclick="syncData()">${t('buttons.sync')}</button>
+                            <button class="btn btn-secondary" onclick="exportIssues()">${t('buttons.export')}</button>
                         </div>
                     </div>
 
                     <div class="tabs">
-                        <div class="tab ${currentTab === 1 ? 'active' : ''}" onclick="switchTab(1)">📊 1. Статистика MDR</div>
-                        <div class="tab ${currentTab === 2 ? 'active' : ''}" onclick="switchTab(2)">📋 2. Все MDR</div>
+                        <div class="tab ${currentTab === 1 ? 'active' : ''}" onclick="switchTab(1)">${t('tabs.dashboard')}</div>
+                        <div class="tab ${currentTab === 2 ? 'active' : ''}" onclick="switchTab(2)">${t('tabs.allMDR')}</div>
                         ${CONTRACTORS.map((c, i) => `
                             <div class="tab ${currentTab === i + 3 ? 'active' : ''}" onclick="switchTab(${i + 3})">
                                 👷 ${i + 3}. ${c.name}
                             </div>
                         `).join('')}
                         <div class="tab ${currentTab === 8 ? 'active' : ''}" onclick="switchTab(8)">
-                            📝 8. Изменения
-                            <span class="tab-badge">${changes.filter(c => c.status === 'На рассмотрении').length}</span>
+                            ${t('tabs.changes')}
+                            <span class="tab-badge">${changes.filter(c => c.status === 'На рассмотрении' || c.status === 'Pending').length}</span>
                         </div>
-                        <div class="tab ${currentTab === 9 ? 'active' : ''}" onclick="switchTab(9)">⚠️ 9. Проблемы</div>
+                        <div class="tab ${currentTab === 9 ? 'active' : ''}" onclick="switchTab(9)">${t('tabs.issues')}</div>
                     </div>
 
                     <div class="tab-content active">
@@ -945,7 +1180,7 @@ async function loadMDRFromSheets() {
                 case 7: return renderContractor(6);
                 case 8: return renderChanges();
                 case 9: return renderIssues();
-                default: return '<div>Выберите вкладку</div>';
+                default: return '<div>Select tab</div>';
             }
         }
 
@@ -954,160 +1189,160 @@ async function loadMDRFromSheets() {
             render();
         }
 
-// ========== 1. ДАШБОРД СО СТАТИСТИКОЙ ==========
-function renderDashboard() {
-    // Используем отфильтрованные данные
-    const filteredData = getFilteredMDRData();
-    
-    // Статистика по статусам из отфильтрованных данных
-    const statusStats = {};
-    filteredData.forEach(m => {
-        const status = m.finalStatus || 'Не указан';
-        statusStats[status] = (statusStats[status] || 0) + 1;
-    });
+        // ========== ФИЛЬТРЫ ДЛЯ ДАШБОРДА ==========
+        function updateDisciplineFilter(value) {
+            disciplineFilter = value;
+            render();
+        }
 
-    // Уникальные шифры разделов и документов
-    const allDisciplines = [...new Set(mdrData.map(m => m.discipline).filter(Boolean))].sort();
-    const allDocCodes = [...new Set(mdrData.map(m => m.docCode).filter(Boolean))].sort();
+        function updateDocCodeFilter(value) {
+            docCodeFilter = value;
+            render();
+        }
 
-    // Статистика по подрядчикам только для АИ и только из отфильтрованных
-    const contractorStats = CONTRACTORS.map(c => {
-        const docs = aiDocs.filter(d => {
-            if (d.contractorId !== c.id) return false;
-            // Применяем те же фильтры
-            if (disciplineFilter !== 'all' && d.discipline !== disciplineFilter) return false;
-            if (docCodeFilter !== 'all' && d.docCode !== docCodeFilter) return false;
-            return true;
-        });
-        
-        const avgProgress = docs.length > 0 
-            ? Math.round(docs.reduce((sum, d) => sum + (getDocProgress(d.id) || 0), 0) / docs.length)
-            : 0;
-        const holdCount = docs.filter(d => isDocHold(d.id)).length;
-        
-        return { ...c, docs, avgProgress, holdCount };
-    }).filter(c => c.docs.length > 0 || (disciplineFilter === 'all' && docCodeFilter === 'all'));
+        function resetDashboardFilters() {
+            disciplineFilter = 'all';
+            docCodeFilter = 'all';
+            render();
+        }
 
-    return `
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">📊 Статистика по статусам комплектов</div>
-                <span class="badge badge-info">Показано: ${filteredData.length} записей</span>
-            </div>
+        function getFilteredMDRData() {
+            let data = mdrData;
             
-            <div class="filter-bar" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; color: var(--sber-text-light); font-size: 0.9em;">Шифр раздела:</label>
-                    <select class="form-select" onchange="updateDisciplineFilter(this.value)">
-                        <option value="all">Все разделы</option>
-                        ${allDisciplines.map(d => `<option value="${d}" ${disciplineFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; color: var(--sber-text-light); font-size: 0.9em;">Шифр документа (комплект):</label>
-                    <select class="form-select" onchange="updateDocCodeFilter(this.value)">
-                        <option value="all">Все комплекты</option>
-                        ${allDocCodes.map(d => `<option value="${d}" ${docCodeFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
-                    </select>
-                </div>
-                <div>
-                    <button class="btn btn-secondary" onclick="resetDashboardFilters()" style="height: fit-content;">Сбросить все</button>
-                </div>
-            </div>
+            if (disciplineFilter !== 'all') {
+                data = data.filter(m => m.discipline === disciplineFilter);
+            }
+            
+            if (docCodeFilter !== 'all') {
+                data = data.filter(m => m.docCode === docCodeFilter);
+            }
+            
+            return data;
+        }
 
-            <div class="stats-grid" style="margin-top: 20px;">
-                ${Object.entries(statusStats).length > 0 ? Object.entries(statusStats).map(([status, count]) => `
-                    <div class="stat-card">
-                        <div class="stat-label">${status}</div>
-                        <div class="stat-value" style="${getStatusColor(status)}">${count}</div>
-                        <div class="stat-label">комплектов</div>
+        // ========== 1. ДАШБОРД ==========
+        function renderDashboard() {
+            const filteredData = getFilteredMDRData();
+            
+            const statusStats = {};
+            filteredData.forEach(m => {
+                const status = m.finalStatus || (currentLang === 'ru' ? 'Не указан' : 'Not set');
+                statusStats[status] = (statusStats[status] || 0) + 1;
+            });
+
+            const allDisciplines = [...new Set(mdrData.map(m => m.discipline).filter(Boolean))].sort();
+            const allDocCodes = [...new Set(mdrData.map(m => m.docCode).filter(Boolean))].sort();
+
+            const contractorStats = CONTRACTORS.map(c => {
+                const docs = aiDocs.filter(d => {
+                    if (d.contractorId !== c.id) return false;
+                    if (disciplineFilter !== 'all' && d.discipline !== disciplineFilter) return false;
+                    if (docCodeFilter !== 'all' && d.docCode !== docCodeFilter) return false;
+                    return true;
+                });
+                
+                const avgProgress = docs.length > 0 
+                    ? Math.round(docs.reduce((sum, d) => sum + (getDocProgress(d.id) || 0), 0) / docs.length)
+                    : 0;
+                const holdCount = docs.filter(d => isDocHold(d.id)).length;
+                
+                return { ...c, docs, avgProgress, holdCount };
+            }).filter(c => c.docs.length > 0 || (disciplineFilter === 'all' && docCodeFilter === 'all'));
+
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 ${currentLang === 'ru' ? 'Статистика по статусам комплектов' : 'Document Status Statistics'}</div>
+                        <span class="badge badge-info">${filteredData.length} ${currentLang === 'ru' ? 'записей' : 'records'}</span>
                     </div>
-                `).join('') : '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--sber-text-light);">Нет данных для выбранных фильтров</div>'}
-            </div>
+                    
+                    <div class="filter-bar" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; color: var(--sber-text-light); font-size: 0.9em;">${t('table.discipline')}:</label>
+                            <select class="form-select" onchange="updateDisciplineFilter(this.value)">
+                                <option value="all">${currentLang === 'ru' ? 'Все разделы' : 'All disciplines'}</option>
+                                ${allDisciplines.map(d => `<option value="${d}" ${disciplineFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; color: var(--sber-text-light); font-size: 0.9em;">${t('table.docCode')}:</label>
+                            <select class="form-select" onchange="updateDocCodeFilter(this.value)">
+                                <option value="all">${currentLang === 'ru' ? 'Все комплекты' : 'All documents'}</option>
+                                ${allDocCodes.map(d => `<option value="${d}" ${docCodeFilter === d ? 'selected' : ''}>${d}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary" onclick="resetDashboardFilters()" style="height: fit-content;">${t('buttons.clear')}</button>
+                        </div>
+                    </div>
 
-            <div class="card" style="margin-top: 20px;">
-                <div class="card-header">
-                    <div class="card-title">📈 Распределение по подрядчикам АИ ${(disciplineFilter !== 'all' || docCodeFilter !== 'all') ? '(отфильтровано)' : ''}</div>
+                    <div class="stats-grid" style="margin-top: 20px;">
+                        ${Object.entries(statusStats).length > 0 ? Object.entries(statusStats).map(([status, count]) => `
+                            <div class="stat-card">
+                                <div class="stat-label">${status}</div>
+                                <div class="stat-value" style="${getStatusColor(status)}">${count}</div>
+                                <div class="stat-label">${currentLang === 'ru' ? 'комплектов' : 'documents'}</div>
+                            </div>
+                        `).join('') : `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--sber-text-light);">${t('messages.noData')}</div>`}
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-header">
+                            <div class="card-title">📈 ${currentLang === 'ru' ? 'Распределение по подрядчикам АИ' : 'AI Contractors Distribution'} ${(disciplineFilter !== 'all' || docCodeFilter !== 'all') ? (currentLang === 'ru' ? '(отфильтровано)' : '(filtered)') : ''}</div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>${t('table.contractor')}</th>
+                                    <th>${currentLang === 'ru' ? 'Кол-во комплектов' : 'Documents count'}</th>
+                                    <th>${t('table.progress')}</th>
+                                    <th>HOLD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${contractorStats.map(c => `
+                                    <tr>
+                                        <td><strong>${c.name}</strong></td>
+                                        <td>${c.docs.length}</td>
+                                        <td>
+                                            <div class="progress-container" style="height: 20px; width: 150px;">
+                                                <div class="progress-bar" style="width: ${c.avgProgress}%">${c.avgProgress}%</div>
+                                            </div>
+                                        </td>
+                                        <td>${c.holdCount > 0 ? `<span class="badge badge-hold">${c.holdCount} HOLD</span>` : '—'}</td>
+                                    </tr>
+                                `).join('') || `<tr><td colspan="4" style="text-align: center;">${t('messages.noData')}</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Подрядчик</th>
-                            <th>Кол-во комплектов</th>
-                            <th>Средний прогресс</th>
-                            <th>HOLD</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${contractorStats.map(c => `
-                            <tr>
-                                <td><strong>${c.name}</strong></td>
-                                <td>${c.docs.length}</td>
-                                <td>
-                                    <div class="progress-container" style="height: 20px; width: 150px;">
-                                        <div class="progress-bar" style="width: ${c.avgProgress}%">${c.avgProgress}%</div>
-                                    </div>
-                                </td>
-                                <td>${c.holdCount > 0 ? `<span class="badge badge-hold">${c.holdCount} HOLD</span>` : '—'}</td>
-                            </tr>
-                        `).join('') || '<tr><td colspan="4" style="text-align: center;">Нет данных для выбранных фильтров</td></tr>'}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-}
+            `;
+        }
 
-function resetDashboardFilters() {
-    disciplineFilter = 'all';
-    docCodeFilter = 'all';
-    render();
-}}
+        function getStatusColor(status) {
+            if (status.includes('согласован') || status.includes('выпущен') || status.includes('Approved') || status.includes('Released')) return 'color: var(--sber-green);';
+            if (status.includes('работе') || status.includes('Progress')) return 'color: var(--sber-blue);';
+            if (status.includes('доработк') || status.includes('Revision')) return 'color: var(--sber-yellow);';
+            return 'color: var(--sber-text);';
+        }
 
-       // ========== ФИЛЬТР ПО КОМПЛЕКТУ ДЛЯ АНАЛИТИКИ ==========
-let docCodeFilter = 'all';
-
-function updateDocCodeFilter(value) {
-    docCodeFilter = value;
-    render();
-}
-
-function getFilteredMDRData() {
-    let data = mdrData;
-    
-    // Фильтр по шифру раздела (дискиплина)
-    if (disciplineFilter !== 'all') {
-        data = data.filter(m => m.discipline === disciplineFilter);
-    }
-    
-    // Фильтр по шифру документа (комплект)
-    if (docCodeFilter !== 'all') {
-        data = data.filter(m => m.docCode === docCodeFilter);
-    }
-    
-    return data;
-}
-
-        // ========== 2. ВСЕ MDR С ГРУППИРОВКОЙ ==========
+        // ========== 2. ВСЕ MDR ==========
         function renderAllMDR() {
-            // Группировка по подрядчикам
             const byContractor = {};
             
-            // Добавляем всех подрядчиков АИ
             CONTRACTORS.forEach(c => {
                 byContractor[c.name] = aiDocs.filter(d => d.contractorId === c.id);
             });
             
-            // Добавляем "Прочие" для не-АИ документов
             const otherDocs = mdrData.filter(d => !d.isAI || !d.contractorId);
             if (otherDocs.length > 0) {
-                byContractor['Прочие разделы'] = otherDocs.map(d => ({...d, isOther: true}));
+                byContractor[currentLang === 'ru' ? 'Прочие разделы' : 'Other disciplines'] = otherDocs.map(d => ({...d, isOther: true}));
             }
 
             return `
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">📋 Полный реестр MDR с плановыми датами</div>
+                        <div class="card-title">📋 ${currentLang === 'ru' ? 'Полный реестр MDR' : 'Full MDR Registry'}</div>
                         <button class="btn btn-secondary" onclick="exportMDR()">📊 Excel</button>
                     </div>
                     
@@ -1123,10 +1358,8 @@ function getFilteredMDRData() {
                                     <div style="display: flex; align-items: center; gap: 12px;">
                                         <input type="checkbox" ${isExpanded ? 'checked' : ''} onclick="event.stopPropagation(); toggleContractor('${contractorName}')" style="width: 18px; height: 18px;">
                                         <span>👷 ${contractorName}</span>
-                                        <span class="badge badge-info">${docs.length} компл.</span>
-                                        ${!docs[0]?.isOther ? `
-                                            <span class="badge badge-success">Средний прогресс: ${avgProgress}%</span>
-                                        ` : ''}
+                                        <span class="badge badge-info">${docs.length} ${currentLang === 'ru' ? 'компл.' : 'docs'}</span>
+                                        ${!docs[0]?.isOther ? `<span class="badge badge-success">${currentLang === 'ru' ? 'Средний прогресс' : 'Avg progress'}: ${avgProgress}%</span>` : ''}
                                     </div>
                                     <span class="toggle-icon ${isExpanded ? 'expanded' : ''}">▶</span>
                                 </div>
@@ -1134,12 +1367,12 @@ function getFilteredMDRData() {
                                     <table class="data-table" style="font-size: 0.85em;">
                                         <thead>
                                             <tr>
-                                                <th>Шифр раздела</th>
-                                                <th>Шифр документа</th>
-                                                <th>Наименование</th>
-                                                <th>Плановая дата (90%)</th>
-                                                <th>Прогресс</th>
-                                                <th>Статус</th>
+                                                <th>${t('table.discipline')}</th>
+                                                <th>${t('table.docCode')}</th>
+                                                <th>${t('table.name')}</th>
+                                                <th>${currentLang === 'ru' ? 'Плановая дата (90%)' : 'Plan date (90%)'}</th>
+                                                <th>${t('table.progress')}</th>
+                                                <th>${t('table.status')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1187,79 +1420,76 @@ function getFilteredMDRData() {
         }
 
         // ========== 3-7. СТРАНИЦЫ ПОДРЯДЧИКОВ ==========
+        function updateContractorSearchFilter(contractorId, value) {
+            if (!contractorSettings[contractorId]) {
+                contractorSettings[contractorId] = { docs: {}, weeklyReportDate: new Date().toISOString().split('T')[0] };
+            }
+            contractorSettings[contractorId].searchFilter = value;
+            saveToStorage();
+            render();
+        }
+
         function renderContractor(contractorId) {
             const c = CONTRACTORS.find(x => x.id === contractorId);
             const docs = aiDocs.filter(d => d.contractorId === contractorId);
             const contractorIssues = issues.filter(i => i.contractorId === contractorId);
             
-            // Группировка по зонам
+            const searchFilter = (contractorSettings[contractorId]?.searchFilter || '').toLowerCase();
+            const filteredDocs = searchFilter 
+                ? docs.filter(d => d.docCode.toLowerCase().includes(searchFilter))
+                : docs;
+
             const byZone = {};
-            docs.forEach(d => {
+            filteredDocs.forEach(d => {
                 if (!byZone[d.zone]) byZone[d.zone] = [];
                 byZone[d.zone].push(d);
             });
 
-            // Отчет по контрольным датам
             const reportDate = contractorSettings[contractorId]?.weeklyReportDate || new Date().toISOString().split('T')[0];
             const weekLater = new Date(reportDate);
             weekLater.setDate(weekLater.getDate() + 7);
             
-            // Комплекты на ближайшую неделю
-            const upcomingDocs = docs.filter(d => {
-                const settings = contractorSettings[contractorId]?.docs[d.id];
-                const planDate = settings?.plan90 || d.plan90;
-                if (!planDate) return false;
-                const plan = new Date(planDate);
-                return plan >= new Date(reportDate) && plan <= weekLater;
-            }).sort((a, b) => {
-                const dateA = new Date(contractorSettings[contractorId]?.docs[a.id]?.plan90 || a.plan90);
-                const dateB = new Date(contractorSettings[contractorId]?.docs[b.id]?.plan90 || b.plan90);
-                return dateA - dateB;
-            });
+            const getUpcomingByLevel = (level) => {
+                return filteredDocs.filter(d => {
+                    const settings = contractorSettings[contractorId]?.docs[d.id];
+                    const planDate = settings?.[`plan${level}`] || d[`plan${level}`];
+                    if (!planDate) return false;
+                    const plan = new Date(planDate);
+                    return plan >= new Date(reportDate) && plan <= weekLater;
+                }).sort((a, b) => {
+                    const dateA = new Date(contractorSettings[contractorId]?.docs[a.id]?.[`plan${level}`] || a[`plan${level}`]);
+                    const dateB = new Date(contractorSettings[contractorId]?.docs[b.id]?.[`plan${level}`] || b[`plan${level}`]);
+                    return dateA - dateB;
+                });
+            };
 
-            return `
-                <div class="contact-card">
-                    <div class="contact-avatar">${c.shortName}</div>
-                    <div>
-                        <h3>${c.name}</h3>
-                        <p>РП: ${c.contact}</p>
-                        <div class="zones-list">
-                            ${c.zones.map(z => `<span class="zone-tag">${z}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        📞 ${c.phone}<br>
-                        <span class="badge badge-info">${docs.length} комплектов</span>
-                    </div>
-                </div>
+            const upcoming30 = getUpcomingByLevel(30);
+            const upcoming60 = getUpcomingByLevel(60);
+            const upcoming90 = getUpcomingByLevel(90);
 
-                <!-- Отчет по контрольным датам -->
-                <div class="weekly-report">
-                    <h3>📅 Отчет по контрольным датам (7 дней)</h3>
-                    <div class="date-selector">
-                        <label>Дата отсчета:</label>
-                        <input type="date" class="form-input" value="${reportDate}" 
-                            onchange="updateReportDate(${contractorId}, this.value)" style="width: 150px;">
-                        <span>→ ${formatDate(weekLater.toISOString().split('T')[0])}</span>
+            const renderLevelTable = (level, docs, colorClass) => `
+                <div style="margin-bottom: 24px;">
+                    <div class="${colorClass}" style="color: white; padding: 12px 16px; border-radius: 8px 8px 0 0; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🎯 ${t(`table.level${level}`)} — ${docs.length} ${t('report.count')}</span>
+                        <span style="font-size: 0.9em; opacity: 0.9;">${formatDate(reportDate)} — ${formatDate(weekLater.toISOString().split('T')[0])}</span>
                     </div>
-                    
-                    ${upcomingDocs.length > 0 ? `
-                        <table class="data-table" style="background: white; border-radius: 8px;">
+                    ${docs.length > 0 ? `
+                        <table class="data-table" style="background: white; border-radius: 0 0 8px 8px; margin: 0;">
                             <thead>
                                 <tr>
-                                    <th>Дата выдачи</th>
-                                    <th>Комплект</th>
-                                    <th>% готовности</th>
-                                    <th>Статус</th>
-                                    <th>Действие</th>
+                                    <th>${currentLang === 'ru' ? 'Дата' : 'Date'} ${level}%</th>
+                                    <th>${currentLang === 'ru' ? 'Комплект' : 'Document'}</th>
+                                    <th>${currentLang === 'ru' ? 'Текущий %' : 'Current %'}</th>
+                                    <th>${t('table.status')}</th>
+                                    <th>${t('report.action')}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${upcomingDocs.map(d => {
-                                    const progress = getDocProgress(d.id);
-                                    const isHold = isDocHold(d.id);
+                                ${docs.map(d => {
                                     const settings = contractorSettings[contractorId]?.docs[d.id];
-                                    const planDate = settings?.plan90 || d.plan90;
+                                    const planDate = settings?.[`plan${level}`] || d[`plan${level}`];
+                                    const currentProgress = getDocProgress(d.id);
+                                    const isHold = isDocHold(d.id);
                                     
                                     return `
                                         <tr style="${isHold ? 'background: #FEF2F2;' : ''}">
@@ -1270,26 +1500,74 @@ function getFilteredMDRData() {
                                             </td>
                                             <td>
                                                 <div class="progress-container" style="height: 24px; width: 100px;">
-                                                    <div class="progress-bar" style="width: ${progress}%">${progress}%</div>
+                                                    <div class="progress-bar" style="width: ${currentProgress}%">${currentProgress}%</div>
                                                 </div>
                                             </td>
                                             <td>${isHold ? '<span class="badge badge-hold">HOLD</span>' : '<span class="badge badge-success">В работе</span>'}</td>
                                             <td>
                                                 <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" 
-                                                    onclick="addIssueForDoc(${contractorId}, ${d.id}, '${d.docName.replace(/'/g, "\\'")}')">➕ Проблема</button>
+                                                    onclick="addIssueForDoc(${contractorId}, ${d.id}, '${d.docName.replace(/'/g, "\\'")}')">${t('report.addIssue')}</button>
                                             </td>
                                         </tr>
                                     `;
                                 }).join('')}
                             </tbody>
                         </table>
-                    ` : '<p style="text-align: center; padding: 20px; color: var(--sber-text-light);">Нет комплектов на ближайшую неделю</p>'}
+                    ` : `<div style="background: white; padding: 20px; text-align: center; color: var(--sber-text-light); border-radius: 0 0 8px 8px;">${currentLang === 'ru' ? 'Нет комплектов на этой неделе' : 'No documents this week'}</div>`}
+                </div>
+            `;
+
+            return `
+                <div class="contact-card">
+                    <div class="contact-avatar">${c.shortName}</div>
+                    <div>
+                        <h3>${c.name}</h3>
+                        <p>${currentLang === 'ru' ? 'РП' : 'PM'}: ${c.contact}</p>
+                        <div class="zones-list">
+                            ${c.zones.map(z => `<span class="zone-tag">${z}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        📞 ${c.phone}<br>
+                        <span class="badge badge-info">${filteredDocs.length} ${currentLang === 'ru' ? 'из' : 'of'} ${docs.length} ${currentLang === 'ru' ? 'комплектов' : 'docs'}</span>
+                        ${searchFilter ? '<br><span class="badge badge-warning">' + (currentLang === 'ru' ? 'Фильтр активен' : 'Filter active') + '</span>' : ''}
+                    </div>
+                </div>
+
+                <!-- Фильтр поиска -->
+                <div class="card" style="background: var(--sber-green-light);">
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <span style="font-weight: 600;">🔍 ${t('messages.searchDocCode')}:</span>
+                        <div class="search-box" style="flex: 1; max-width: 400px;">
+                            <input type="text" class="form-input" placeholder="${t('buttons.search')}" 
+                                value="${contractorSettings[contractorId]?.searchFilter || ''}"
+                                oninput="updateContractorSearchFilter(${contractorId}, this.value)">
+                            ${searchFilter ? `<button class="search-clear" onclick="updateContractorSearchFilter(${contractorId}, '')">✕</button>` : ''}
+                        </div>
+                        <button class="btn btn-export" onclick="exportToMSProject(${contractorId})">📊 ${t('buttons.exportProject')}</button>
+                        ${searchFilter ? `<button class="btn btn-secondary" onclick="updateContractorSearchFilter(${contractorId}, '')">${t('buttons.clear')}</button>` : ''}
+                    </div>
+                </div>
+
+                <!-- Отчет по контрольным датам — 3 уровня -->
+                <div class="weekly-report" style="background: linear-gradient(135deg, #f0fdf4, white);">
+                    <h3>📅 ${t('report.title')}</h3>
+                    <div class="date-selector" style="margin-bottom: 24px;">
+                        <label>${t('report.dateFrom')}:</label>
+                        <input type="date" class="form-input" value="${reportDate}" 
+                            onchange="updateReportDate(${contractorId}, this.value)" style="width: 150px;">
+                        <span>${t('report.to')} ${formatDate(weekLater.toISOString().split('T')[0])}</span>
+                    </div>
+                    
+                    ${renderLevelTable(30, upcoming30, 'level-30')}
+                    ${renderLevelTable(60, upcoming60, 'level-60')}
+                    ${renderLevelTable(90, upcoming90, 'level-90')}
                 </div>
 
                 <!-- Все комплекты подрядчика -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">📋 Все комплекты (${docs.length})</div>
+                        <div class="card-title">📋 ${currentLang === 'ru' ? 'Все комплекты' : 'All documents'} (${filteredDocs.length})</div>
                     </div>
                     
                     ${Object.entries(byZone).map(([zone, zoneDocs]) => `
@@ -1315,22 +1593,22 @@ function getFilteredMDRData() {
                                             
                                             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; font-size: 0.85em;">
                                                 <div>
-                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">Начало</label>
+                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">${currentLang === 'ru' ? 'Начало' : 'Start'}</label>
                                                     <input type="date" class="form-input" value="${settings.startDate || d.startDate || ''}" 
                                                         onchange="updateDocSetting(${contractorId}, ${d.id}, 'startDate', this.value)">
                                                 </div>
                                                 <div>
-                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">30% план</label>
+                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">30% ${currentLang === 'ru' ? 'план' : 'plan'}</label>
                                                     <input type="date" class="form-input" value="${settings.plan30 || d.plan30 || ''}" 
                                                         onchange="updateDocSetting(${contractorId}, ${d.id}, 'plan30', this.value)">
                                                 </div>
                                                 <div>
-                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">60% план</label>
+                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">60% ${currentLang === 'ru' ? 'план' : 'plan'}</label>
                                                     <input type="date" class="form-input" value="${settings.plan60 || d.plan60 || ''}" 
                                                         onchange="updateDocSetting(${contractorId}, ${d.id}, 'plan60', this.value)">
                                                 </div>
                                                 <div>
-                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">90% план</label>
+                                                    <label style="color: var(--sber-text-light); display: block; margin-bottom: 4px;">90% ${currentLang === 'ru' ? 'план' : 'plan'}</label>
                                                     <input type="date" class="form-input" value="${settings.plan90 || d.plan90 || ''}" 
                                                         onchange="updateDocSetting(${contractorId}, ${d.id}, 'plan90', this.value)">
                                                 </div>
@@ -1338,21 +1616,21 @@ function getFilteredMDRData() {
                                             
                                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; align-items: end;">
                                                 <div>
-                                                    <label style="color: var(--sber-text-light); font-size: 0.8em; display: block; margin-bottom: 4px;">% готовности</label>
+                                                    <label style="color: var(--sber-text-light); font-size: 0.8em; display: block; margin-bottom: 4px;">% ${currentLang === 'ru' ? 'готовности' : 'complete'}</label>
                                                     <input type="number" class="form-input" min="0" max="100" value="${progress}" 
                                                         onchange="updateDocProgress(${contractorId}, ${d.id}, this.value)">
                                                 </div>
                                                 <div>
-                                                    <label style="color: var(--sber-text-light); font-size: 0.8em; display: block; margin-bottom: 4px;">Статус</label>
+                                                    <label style="color: var(--sber-text-light); font-size: 0.8em; display: block; margin-bottom: 4px;">${t('table.status')}</label>
                                                     <select class="form-select" onchange="updateDocStatus(${contractorId}, ${d.id}, this.value)">
-                                                        <option value="В работе" ${!isHold ? 'selected' : ''}>В работе</option>
+                                                        <option value="В работе" ${!isHold ? 'selected' : ''}>${currentLang === 'ru' ? 'В работе' : 'In Progress'}</option>
                                                         <option value="HOLD" ${isHold ? 'selected' : ''}>🛑 HOLD</option>
                                                     </select>
                                                 </div>
                                                 <div></div>
                                                 <div>
                                                     <button class="btn btn-primary" style="width: 100%;" 
-                                                        onclick="addIssueForDoc(${contractorId}, ${d.id}, '${d.docName.replace(/'/g, "\\'")}')">➕ Проблема</button>
+                                                        onclick="addIssueForDoc(${contractorId}, ${d.id}, '${d.docName.replace(/'/g, "\\'")}')">➕ ${currentLang === 'ru' ? 'Проблема' : 'Issue'}</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1360,16 +1638,16 @@ function getFilteredMDRData() {
                                 }).join('')}
                             </div>
                         </div>
-                    `).join('') || '<p style="text-align: center; padding: 20px;">Нет комплектов</p>'}
+                    `).join('') || `<p style="text-align: center; padding: 20px;">${currentLang === 'ru' ? 'Нет комплектов для отображения' : 'No documents to display'}</p>`}
                 </div>
 
                 <!-- Проблемы подрядчика -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">⚠️ Проблемы (${contractorIssues.length})</div>
-                        <button class="btn btn-primary" onclick="openIssueModal(${c.id})">➕ Добавить проблему</button>
+                        <div class="card-title">⚠️ ${currentLang === 'ru' ? 'Проблемы' : 'Issues'} (${contractorIssues.length})</div>
+                        <button class="btn btn-primary" onclick="openIssueModal(${c.id})">➕ ${currentLang === 'ru' ? 'Добавить проблему' : 'Add Issue'}</button>
                     </div>
-                    ${contractorIssues.length > 0 ? renderIssuesTable(contractorIssues) : '<p style="text-align: center; padding: 20px;">Проблем нет 🎉</p>'}
+                    ${contractorIssues.length > 0 ? renderIssuesTable(contractorIssues, true) : `<p style="text-align: center; padding: 20px;">${t('messages.noIssues')}</p>`}
                 </div>
             `;
         }
@@ -1406,7 +1684,6 @@ function getFilteredMDRData() {
                     return contractorSettings[cId].docs[docId].progress;
                 }
             }
-            // Ищем в aiDocs
             const doc = aiDocs.find(d => d.id === docId);
             return doc?.progress || 0;
         }
@@ -1418,27 +1695,253 @@ function getFilteredMDRData() {
             return false;
         }
 
+        // ========== ЭКСПОРТ В MS PROJECT ==========
+        function exportToMSProject(contractorId) {
+            const c = CONTRACTORS.find(x => x.id === contractorId);
+            const docs = aiDocs.filter(d => d.contractorId === contractorId);
+            
+            if (docs.length === 0) {
+                alert(currentLang === 'ru' ? 'Нет данных для экспорта' : 'No data to export');
+                return;
+            }
+
+            // Формат XML для MS Project
+            const xmlHeader = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Project xmlns="http://schemas.microsoft.com/project">
+    <Name>${c.name} - ${new Date().toISOString().split('T')[0]}</Name>
+    <Subject>Interior Design Project</Subject>
+    <CreationDate>${new Date().toISOString()}</CreationDate>
+    <LastSaved>${new Date().toISOString()}</LastSaved>
+    <ScheduleFromStart>1</ScheduleFromStart>
+    <StartDate>${new Date().toISOString().split('T')[0]}T08:00:00</StartDate>
+    <DefaultStartTime>08:00:00</DefaultStartTime>
+    <DefaultFinishTime>17:00:00</DefaultFinishTime>
+    <MinutesPerDay>480</MinutesPerDay>
+    <DaysPerMonth>20</DaysPerMonth>
+    <MinutesPerWeek>2400</MinutesPerWeek>
+    <StandardRate>0</StandardRate>
+    <OvertimeRate>0</OvertimeRate>
+    <CurrencySymbol>₽</CurrencySymbol>
+    <CurrencyPosition>0</CurrencyPosition>
+    <CurrencyDigits>2</CurrencyDigits>
+    <Tasks>`;
+
+            let tasksXml = '';
+            let taskId = 1;
+            let outlineLevel = 1;
+
+            // Группировка по зонам
+            const byZone = {};
+            docs.forEach(d => {
+                if (!byZone[d.zone]) byZone[d.zone] = [];
+                byZone[d.zone].push(d);
+            });
+
+            // Создаем задачи по зонам и документам
+            Object.entries(byZone).forEach(([zone, zoneDocs], zoneIndex) => {
+                // Задача-контейнер для зоны
+                const zoneStartDate = zoneDocs[0]?.startDate || new Date().toISOString().split('T')[0];
+                
+                tasksXml += `
+        <Task>
+            <UID>${taskId}</UID>
+            <ID>${taskId}</ID>
+            <Name>${escapeXml(zone)}</Name>
+            <Type>1</Type>
+            <IsNull>0</IsNull>
+            <CreateDate>${new Date().toISOString()}</CreateDate>
+            <WBS>${zoneIndex + 1}</WBS>
+            <OutlineNumber>${zoneIndex + 1}</OutlineNumber>
+            <OutlineLevel>1</OutlineLevel>
+            <Priority>500</Priority>
+            <Start>${zoneStartDate}T08:00:00</Start>
+            <Finish>${calculateFinishDate(zoneStartDate, 30)}T17:00:00</Finish>
+            <Duration>PT240H0M0S</Duration>
+            <DurationFormat>7</DurationFormat>
+            <PercentComplete>0</PercentComplete>
+            <PercentWorkComplete>0</PercentWorkComplete>
+            <FixedCostAccrual>2</FixedCostAccrual>
+            <ConstraintType>0</ConstraintType>
+            <Summary>1</Summary>
+            <Critical>0</Critical>
+            <Milestone>0</Milestone>
+        </Task>`;
+                
+                taskId++;
+                outlineLevel = 2;
+
+                // Задачи для каждого документа
+                zoneDocs.forEach((d, docIndex) => {
+                    const settings = contractorSettings[contractorId]?.docs[d.id] || {};
+                    const startDate = settings.startDate || d.startDate || new Date().toISOString().split('T')[0];
+                    const plan30 = settings.plan30 || d.plan30;
+                    const plan60 = settings.plan60 || d.plan60;
+                    const plan90 = settings.plan90 || d.plan90;
+                    const progress = settings.progress || 0;
+                    
+                    // Основная задача - документ
+                    tasksXml += `
+        <Task>
+            <UID>${taskId}</UID>
+            <ID>${taskId}</ID>
+            <Name>${escapeXml(d.docName)}</Name>
+            <Type>0</Type>
+            <IsNull>0</IsNull>
+            <CreateDate>${new Date().toISOString()}</CreateDate>
+            <WBS>${zoneIndex + 1}.${docIndex + 1}</WBS>
+            <OutlineNumber>${zoneIndex + 1}.${docIndex + 1}</OutlineNumber>
+            <OutlineLevel>2</OutlineLevel>
+            <Priority>500</Priority>
+            <Start>${startDate}T08:00:00</Start>
+            <Finish>${plan90 || calculateFinishDate(startDate, 90)}T17:00:00</Finish>
+            <Duration>PT${Math.ceil(calculateDuration(startDate, plan90 || calculateFinishDate(startDate, 90)) * 8)}H0M0S</Duration>
+            <DurationFormat>7</DurationFormat>
+            <PercentComplete>${progress}</PercentComplete>
+            <PercentWorkComplete>${progress}</PercentWorkComplete>
+            <FixedCostAccrual>2</FixedCostAccrual>
+            <ConstraintType>0</ConstraintType>
+            <Summary>0</Summary>
+            <Critical>${progress < 100 && new Date(plan90 || calculateFinishDate(startDate, 90)) < new Date() ? 1 : 0}</Critical>
+            <Milestone>0</Milestone>
+            <Notes>${escapeXml(d.docCode)} | ${escapeXml(d.zone)}</Notes>
+        </Task>`;
+                    
+                    taskId++;
+                    
+                    // Подзадачи milestones 30%, 60%, 90%
+                    const milestones = [
+                        { level: 30, date: plan30, name: currentLang === 'ru' ? '30% готовности' : '30% Complete' },
+                        { level: 60, date: plan60, name: currentLang === 'ru' ? '60% готовности' : '60% Complete' },
+                        { level: 90, date: plan90, name: currentLang === 'ru' ? '90% готовности' : '90% Complete (Release)' }
+                    ];
+                    
+                    milestones.forEach((m, mIndex) => {
+                        if (m.date) {
+                            tasksXml += `
+        <Task>
+            <UID>${taskId}</UID>
+            <ID>${taskId}</ID>
+            <Name>${escapeXml(m.name)}</Name>
+            <Type>0</Type>
+            <IsNull>0</IsNull>
+            <CreateDate>${new Date().toISOString()}</CreateDate>
+            <WBS>${zoneIndex + 1}.${docIndex + 1}.${mIndex + 1}</WBS>
+            <OutlineNumber>${zoneIndex + 1}.${docIndex + 1}.${mIndex + 1}</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
+            <Priority>500</Priority>
+            <Start>${m.date}T08:00:00</Start>
+            <Finish>${m.date}T17:00:00</Finish>
+            <Duration>PT8H0M0S</Duration>
+            <DurationFormat>7</DurationFormat>
+            <PercentComplete>${progress >= m.level ? 100 : 0}</PercentComplete>
+            <PercentWorkComplete>${progress >= m.level ? 100 : 0}</PercentWorkComplete>
+            <FixedCostAccrual>2</FixedCostAccrual>
+            <ConstraintType>0</ConstraintType>
+            <Summary>0</Summary>
+            <Critical>0</Critical>
+            <Milestone>1</Milestone>
+        </Task>`;
+                            taskId++;
+                        }
+                    });
+                });
+            });
+
+            const xmlFooter = `
+    </Tasks>
+    <Resources>
+        <Resource>
+            <UID>0</UID>
+            <ID>0</ID>
+            <Type>1</Type>
+            <IsNull>0</IsNull>
+            <MaxUnits>1.00</MaxUnits>
+            <PeakUnits>0.00</PeakUnits>
+            <OverAllocated>0</OverAllocated>
+            <CanLevel>1</CanLevel>
+            <AccrueAt>2</AccrueAt>
+            <Cost>0.00</Cost>
+        </Resource>
+        <Resource>
+            <UID>1</UID>
+            <ID>1</ID>
+            <Name>${escapeXml(c.name)}</Name>
+            <Type>0</Type>
+            <IsNull>0</IsNull>
+            <Initials>${c.shortName}</Initials>
+            <MaxUnits>1.00</MaxUnits>
+            <PeakUnits>0.00</PeakUnits>
+            <OverAllocated>0</OverAllocated>
+            <CanLevel>1</CanLevel>
+            <AccrueAt>2</AccrueAt>
+            <Cost>0.00</Cost>
+        </Resource>
+    </Resources>
+</Project>`;
+
+            const fullXml = xmlHeader + tasksXml + xmlFooter;
+            
+            // Скачивание файла
+            const blob = new Blob([fullXml], { type: 'application/xml;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `MSProject_${c.shortName}_${new Date().toISOString().split('T')[0]}.xml`;
+            link.click();
+            
+            alert(currentLang === 'ru' 
+                ? `Экспортировано ${taskId - 1} задач для ${c.name}` 
+                : `Exported ${taskId - 1} tasks for ${c.name}`);
+        }
+
+        function escapeXml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.replace(/[<>&'"]/g, c => {
+                switch (c) {
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '&': return '&amp;';
+                    case '\'': return '&apos;';
+                    case '"': return '&quot;';
+                }
+                return c;
+            });
+        }
+
+        function calculateFinishDate(startDate, days) {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        }
+
+        function calculateDuration(startDate, finishDate) {
+            const start = new Date(startDate);
+            const finish = new Date(finishDate);
+            const diffTime = Math.abs(finish - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays || 1;
+        }
+
         // ========== 8. ЖУРНАЛ ИЗМЕНЕНИЙ ==========
         function renderChanges() {
             return `
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">📝 Журнал изменений (${changes.length})</div>
-                        <button class="btn btn-primary" onclick="openChangeModal()">➕ Добавить запись</button>
+                        <div class="card-title">📝 ${currentLang === 'ru' ? 'Журнал изменений' : 'Change Log'} (${changes.length})</div>
+                        <button class="btn btn-primary" onclick="openChangeModal()">➕ ${currentLang === 'ru' ? 'Добавить запись' : 'Add Record'}</button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>№</th>
-                                    <th>Категория</th>
-                                    <th>Элемент</th>
-                                    <th>Описание</th>
-                                    <th>Инициатор</th>
-                                    <th>Дата</th>
-                                    <th>Статус</th>
-                                    <th>Комментарии</th>
-                                    <th>Действия</th>
+                                    <th>${currentLang === 'ru' ? 'Категория' : 'Category'}</th>
+                                    <th>${currentLang === 'ru' ? 'Элемент' : 'Element'}</th>
+                                    <th>${currentLang === 'ru' ? 'Описание' : 'Description'}</th>
+                                    <th>${currentLang === 'ru' ? 'Инициатор' : 'Initiator'}</th>
+                                    <th>${t('table.date')}</th>
+                                    <th>${t('table.status')}</th>
+                                    <th>${currentLang === 'ru' ? 'Комментарии' : 'Comments'}</th>
+                                    <th>${currentLang === 'ru' ? 'Действия' : 'Actions'}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1452,7 +1955,7 @@ function getFilteredMDRData() {
                                         <td>${formatDate(c.requestDate)}</td>
                                         <td>${renderStatusBadge(c.status)}</td>
                                         <td>
-                                            <div class="editable-cell" onclick="editChangeComment(${c.id})" title="Кликните для редактирования">
+                                            <div class="editable-cell" onclick="editChangeComment(${c.id})" title="${currentLang === 'ru' ? 'Кликните для редактирования' : 'Click to edit'}">
                                                 ${c.comments || '—'}
                                             </div>
                                         </td>
@@ -1473,7 +1976,7 @@ function getFilteredMDRData() {
             const change = changes.find(c => c.id === id);
             if (!change) return;
             
-            const newComment = prompt('Введите комментарий:', change.comments || '');
+            const newComment = prompt(currentLang === 'ru' ? 'Введите комментарий:' : 'Enter comment:', change.comments || '');
             if (newComment !== null) {
                 change.comments = newComment;
                 saveToStorage();
@@ -1482,44 +1985,64 @@ function getFilteredMDRData() {
         }
 
         // ========== 9. ЖУРНАЛ ПРОБЛЕМ ==========
+        function updateIssueSearch(value) {
+            issueSearchFilter = value.toLowerCase();
+            render();
+        }
+
         function renderIssues() {
+            const filteredIssues = issueSearchFilter 
+                ? issues.filter(i => i.id.toLowerCase().includes(issueSearchFilter))
+                : issues;
+
             return `
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">⚠️ Реестр проблем (${issues.length})</div>
-                        <div>
-                            <button class="btn btn-primary" onclick="addIssuePrompt()">➕ Добавить проблему</button>
-                            <button class="btn btn-secondary" onclick="exportIssues()">📤 Выгрузить</button>
+                        <div class="card-title">⚠️ ${currentLang === 'ru' ? 'Реестр проблем' : 'Issues Registry'} (${filteredIssues.length} ${currentLang === 'ru' ? 'из' : 'of'} ${issues.length})</div>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <div class="search-box">
+                                <input type="text" class="form-input" placeholder="${t('messages.searchIssueId')}" 
+                                    value="${issueSearchFilter}"
+                                    oninput="updateIssueSearch(this.value)"
+                                    style="width: 250px;">
+                                ${issueSearchFilter ? `<button onclick="updateIssueSearch('')" class="search-clear">✕</button>` : ''}
+                            </div>
+                            <button class="btn btn-primary" onclick="addIssuePrompt()">${t('buttons.add')}</button>
+                            <button class="btn btn-secondary" onclick="exportIssues()">${t('buttons.export')}</button>
                         </div>
                     </div>
-                    ${renderIssuesTable(issues)}
+                    ${renderIssuesTable(filteredIssues, false)}
                 </div>
             `;
         }
 
-        function renderIssuesTable(issuesList) {
+        function renderIssuesTable(issuesList, showContractor = true) {
+            if (issuesList.length === 0) {
+                return `<div style="text-align: center; padding: 40px; color: var(--sber-text-light);">${t('messages.noIssues')}</div>`;
+            }
+            
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Подрядчик</th>
-                                <th>Классификатор</th>
-                                <th>Влияет на</th>
-                                <th>Описание</th>
-                                <th>Дата</th>
-                                <th>Срок</th>
-                                <th>Статус</th>
-                                <th>Приоритет</th>
-                                <th>Комментарии</th>
+                                ${showContractor ? `<th>${t('table.contractor')}</th>` : ''}
+                                <th>${t('table.classifier')}</th>
+                                <th>${currentLang === 'ru' ? 'Влияет на' : 'Affects'}</th>
+                                <th>${currentLang === 'ru' ? 'Описание' : 'Description'}</th>
+                                <th>${currentLang === 'ru' ? 'Дата выявления' : 'Date Identified'}</th>
+                                <th>${currentLang === 'ru' ? 'Срок решения' : 'Due Date'}</th>
+                                <th>${t('table.status')}</th>
+                                <th>${t('table.priority')}</th>
+                                <th>${currentLang === 'ru' ? 'Комментарии' : 'Comments'}</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${issuesList.map(i => `
                                 <tr>
                                     <td><strong style="color: var(--sber-green); font-size: 1.1em;">${i.id}</strong></td>
-                                    <td><strong>${i.contractorName}</strong></td>
+                                    ${showContractor ? `<td><strong>${i.contractorName}</strong></td>` : ''}
                                     <td><span class="badge badge-info">${i.classifier}</span></td>
                                     <td style="font-size: 0.85em; max-width: 150px;">${i.affectedDoc || '—'}</td>
                                     <td style="max-width: 200px;">${i.desc}</td>
@@ -1538,12 +2061,12 @@ function getFilteredMDRData() {
                                         </select>
                                     </td>
                                     <td>
-                                        <div class="editable-cell" onclick="editIssueComment('${i.id}')" title="Кликните для редактирования" style="max-width: 150px; font-size: 0.85em;">
+                                        <div class="editable-cell" onclick="editIssueComment('${i.id}')" title="${currentLang === 'ru' ? 'Кликните для редактирования' : 'Click to edit'}" style="max-width: 150px; font-size: 0.85em;">
                                             ${i.comments || '—'}
                                         </div>
                                     </td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="10" style="text-align: center; padding: 40px;">Нет проблем</td></tr>'}
+                            `).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -1554,7 +2077,7 @@ function getFilteredMDRData() {
             const issue = issues.find(i => i.id === id);
             if (!issue) return;
             
-            const newComment = prompt('Введите комментарий:', issue.comments || '');
+            const newComment = prompt(currentLang === 'ru' ? 'Введите комментарий:' : 'Enter comment:', issue.comments || '');
             if (newComment !== null) {
                 issue.comments = newComment;
                 saveToStorage();
@@ -1562,7 +2085,7 @@ function getFilteredMDRData() {
             }
         }
 
-        // ========== МОДАЛЬНЫЕ ОКНА И ДЕЙСТВИЯ ==========
+        // ========== МОДАЛЬНЫЕ ОКНА ==========
         function openChangeModal(id = null) {
             const modal = document.getElementById('changeModal');
             
@@ -1585,7 +2108,7 @@ function getFilteredMDRData() {
                 document.getElementById('changeId').value = '';
                 document.getElementById('changeNumber').value = (Math.max(0, ...changes.map(c => c.number)) + 1);
                 document.getElementById('changeRequestDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('changeStatus').value = 'На рассмотрении';
+                document.getElementById('changeStatus').value = currentLang === 'ru' ? 'На рассмотрении' : 'Pending';
             }
             
             modal.classList.add('active');
@@ -1626,19 +2149,17 @@ function getFilteredMDRData() {
         }
 
         function deleteChange(id) {
-            if (confirm('Удалить запись?')) {
+            if (confirm(currentLang === 'ru' ? 'Удалить запись?' : 'Delete record?')) {
                 changes = changes.filter(c => c.id !== id);
                 saveToStorage();
                 render();
             }
         }
 
-        // ========== ПРОБЛЕМЫ - ДЕЙСТВИЯ ==========
         function openIssueModal(contractorId, docCode = '', docName = '') {
             const c = CONTRACTORS.find(x => x.id === contractorId);
             const modal = document.getElementById('issueModal');
             
-            // Генерация ID
             const prefix = c.shortName;
             const existing = issues.filter(i => i.id.startsWith(prefix + '-'));
             const maxNum = Math.max(0, ...existing.map(i => {
@@ -1652,13 +2173,11 @@ function getFilteredMDRData() {
             document.getElementById('issueId').value = newId;
             document.getElementById('issueDocCode').value = docCode;
             document.getElementById('issueDocName').value = docName;
-            document.getElementById('issueAffectedDoc').value = docCode ? `${docCode} - ${docName}` : 'Общая проблема';
+            document.getElementById('issueAffectedDoc').value = docCode ? `${docCode} - ${docName}` : (currentLang === 'ru' ? 'Общая проблема' : 'General Issue');
             document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('issueDueDate').value = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
             document.getElementById('issueDesc').value = '';
             document.getElementById('issueComments').value = '';
-            
-            // Сброс классификатора
             document.getElementById('issueClassifier').value = '';
             
             modal.classList.add('active');
@@ -1695,21 +2214,22 @@ function getFilteredMDRData() {
         }
 
         function addIssueForDoc(contractorId, docId, docName) {
-            // Находим docCode по id
             const doc = aiDocs.find(d => d.id === docId);
             const docCode = doc ? doc.docCode : '';
             openIssueModal(contractorId, docCode, docName);
         }
 
         function addIssuePrompt() {
-            const contractorName = prompt('Выберите подрядчика:\n' + CONTRACTORS.map((c, i) => `${i + 1}. ${c.name}`).join('\n') + '\n\nВведите номер:');
+            const contractorName = prompt((currentLang === 'ru' ? 'Выберите подрядчика:\n' : 'Select contractor:\n') + 
+                CONTRACTORS.map((c, i) => `${i + 1}. ${c.name}`).join('\n') + 
+                '\n\n' + (currentLang === 'ru' ? 'Введите номер:' : 'Enter number:'));
             if (!contractorName) return;
             
             const idx = parseInt(contractorName) - 1;
             if (idx >= 0 && idx < CONTRACTORS.length) {
                 openIssueModal(CONTRACTORS[idx].id);
             } else {
-                alert('Неверный выбор');
+                alert(currentLang === 'ru' ? 'Неверный выбор' : 'Invalid selection');
             }
         }
 
@@ -1735,41 +2255,44 @@ function getFilteredMDRData() {
         function formatDate(d) {
             if (!d) return '—';
             const date = new Date(d);
-            return isNaN(date) ? d : date.toLocaleDateString('ru-RU');
+            return isNaN(date) ? d : date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US');
         }
 
         function renderStatusBadge(s) {
-            if (['Решено', 'Одобрено', 'Внесено'].includes(s)) return `<span class="badge badge-success">${s}</span>`;
-            if (['На рассмотрении', 'В работе', 'На согласовании'].includes(s)) return `<span class="badge badge-warning">${s}</span>`;
-            if (['Отклонено', 'Отменено'].includes(s)) return `<span class="badge badge-danger">${s}</span>`;
+            if (['Решено', 'Одобрено', 'Внесено', 'Resolved', 'Approved', 'Implemented'].includes(s)) return `<span class="badge badge-success">${s}</span>`;
+            if (['На рассмотрении', 'В работе', 'На согласовании', 'Pending', 'In Progress', 'Under Review'].includes(s)) return `<span class="badge badge-warning">${s}</span>`;
+            if (['Отклонено', 'Отменено', 'Rejected', 'Cancelled'].includes(s)) return `<span class="badge badge-danger">${s}</span>`;
             return `<span class="badge badge-info">${s}</span>`;
         }
 
         // ========== ЭКСПОРТ ==========
         function exportMDR() {
-            let csv = 'Подрядчик;Зона;Шифр раздела;Шифр документа;Наименование;План 30%;План 60%;План 90%;Прогресс;Статус\n';
+            let csv = currentLang === 'ru' 
+                ? 'Подрядчик;Зона;Шифр раздела;Шифр документа;Наименование;План 30%;План 60%;План 90%;Прогресс;Статус\n'
+                : 'Contractor;Zone;Discipline;Doc Code;Name;Plan 30%;Plan 60%;Plan 90%;Progress;Status\n';
             
             aiDocs.forEach(d => {
                 const settings = contractorSettings[d.contractorId]?.docs[d.id] || {};
-                csv += `${d.contractorName};${d.zone};${d.discipline};${d.docCode};"${d.docName}";${settings.plan30 || d.plan30 || ''};${settings.plan60 || d.plan60 || ''};${settings.plan90 || d.plan90 || ''};${settings.progress || 0}%;${settings.isHold ? 'HOLD' : 'В работе'}\n`;
+                csv += `${d.contractorName};${d.zone};${d.discipline};${d.docCode};"${d.docName}";${settings.plan30 || d.plan30 || ''};${settings.plan60 || d.plan60 || ''};${settings.plan90 || d.plan90 || ''};${settings.progress || 0}%;${settings.isHold ? 'HOLD' : 'Active'}\n`;
             });
             
-            // Добавляем не-АИ документы
             mdrData.filter(d => !d.isAI).forEach(d => {
-                csv += `${d.contractorName || 'Прочие'};${d.zone};${d.discipline};${d.docCode};"${d.docName}";—;—;—;—;${d.finalStatus || ''}\n`;
+                csv += `${d.contractorName || (currentLang === 'ru' ? 'Прочие' : 'Other')};${d.zone};${d.discipline};${d.docCode};"${d.docName}";—;—;—;—;${d.finalStatus || ''}\n`;
             });
             
-            downloadCSV(csv, `MDR_${new Date().toISOString().split('T')[0]}.csv`);
+            downloadCSV(csv, `MDR_${currentLang}_${new Date().toISOString().split('T')[0]}.csv`);
         }
 
         function exportIssues() {
-            let csv = 'ID;Подрядчик;Классификатор;Влияет на;Описание;Дата выявления;Срок решения;Статус;Приоритет;Комментарии\n';
+            let csv = currentLang === 'ru'
+                ? 'ID;Подрядчик;Классификатор;Влияет на;Описание;Дата выявления;Срок решения;Статус;Приоритет;Комментарии\n'
+                : 'ID;Contractor;Classifier;Affects;Description;Date Identified;Due Date;Status;Priority;Comments\n';
             
             issues.forEach(i => {
                 csv += `${i.id};${i.contractorName};${i.classifier};"${i.affectedDoc || ''}";"${i.desc}";${i.date};${i.dueDate};${i.status};${i.priority};"${i.comments || ''}"\n`;
             });
             
-            downloadCSV(csv, `Проблемы_${new Date().toISOString().split('T')[0]}.csv`);
+            downloadCSV(csv, `Issues_${currentLang}_${new Date().toISOString().split('T')[0]}.csv`);
         }
 
         function downloadCSV(content, filename) {
@@ -1780,53 +2303,37 @@ function getFilteredMDRData() {
             link.click();
         }
 
-        // ========== ДЕМО-ДАННЫЕ FITOUT PRO ==========
+        // ========== ЗАКРЫТИЕ МОДАЛОВ ==========
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'changeModal') closeChangeModal();
+            if (e.target.id === 'issueModal') closeIssueModal();
+        });
+
+        // ========== СТАРТ ==========
+        window.onload = function() {
+            init();
+            if (issues.filter(i => i.contractorId === 3).length === 0) {
+                loadFitOutProDemoIssues();
+                render();
+            }
+        };
+
         function loadFitOutProDemoIssues() {
-            // Проблемы из PDF файла K32SB_мфз_фитаутпро_2026.03.12.pdf
             const fitOutIssues = [
                 { classifier: 'BIM', desc: 'В модели есть и помещения и пространства. На основе чего следует формировать экспликации?', affectedDoc: 'МФЗ - Общее' },
                 { classifier: 'BIM', desc: 'Можно ли менять шаблоны для видов, размещенных на листах в комплектах Р?', affectedDoc: 'МФЗ - Общее' },
                 { classifier: 'BIM', desc: 'Можно ли удалять лишние материалы?', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим разрешения на удаление неиспользуемых элементов в модели. На данный момент их 1875', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Требуется комментарий по устранению текущих предупреждений в модели. Критических:1, С высоким приоритетом:467, Средний приоритет: 3947, Низкий приоритет: 152', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим с вашей стороны удалить лишние листы или подтвердить, что мы можем брать их в работу. Сейчас листов 327 в проекте.', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим разрешение на удаление неиспользуемых шаблонов вида, которые не назначены видам.', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим по возможности с вашей стороны удалить лишние неразмещенные на листах виды.', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим разрешение на удаление импортированных подложек DWG в количестве 14 штук', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим по возможности подключить специалистов для устранения ошибок в семействах 9 дверей', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим по возможности подключить специалистов для устранения присутствия в проекте отзеркаленных дверей в количестве 181', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Завершена ли очистка модели, которая проводилась на этих выходных?', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим подтвердить, что в модели мы работаем одни и размещен в ней только раздел АИ', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Возможно, для семейства 470_Узел этажный с шкафом модель АИ является неподходящей. Вес у него более 10 МБ', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Уточнить разве мы создаем помещения? Что считать границей помещений связь АР КЖ КР', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'В проекте есть дубликаты параметров проекта и общих параметров. Кто ответственный за их удаление?', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'Инженерия', desc: 'Необходим обновленный раздел ВК, для увязки выводов с перегородками', affectedDoc: 'МФЗ - Общее' },
                 { classifier: 'Проектные решения', desc: 'Просим уточнить границу помещения сцены. Не понятно какой конфигурации перегородка', affectedDoc: 'МФЗ - Зона 4' },
-                { classifier: 'Проектные решения', desc: 'Просим выдать схему проектирования по залу и ответственных лиц по зонам', affectedDoc: 'МФЗ - Зона 5' },
-                { classifier: 'Проектные решения', desc: 'Уточнить количество и расположение дверей в "перемычках" тамбура (9 этаж, пом. М3.9.4 - М3.9.7)', affectedDoc: 'МФЗ - Зона 5' },
-                { classifier: 'Проектные решения', desc: 'Уточнить отделку ограждения балкона (9 этаж, пом. М3.9.7)', affectedDoc: 'МФЗ - Зона 5' },
-                { classifier: 'Материалы', desc: 'В альбоме дизайна от авторов концепции отсутствует описание отделки WF-9 (внутри сантехнических кабин)', affectedDoc: 'МФЗ - Зона 4' },
-                { classifier: 'Материалы', desc: 'Отсутствует тип отделки лифтовых шахт (8 этаж)', affectedDoc: 'МФЗ - Зона 3' },
-                { classifier: 'Материалы', desc: 'В пом. М.8.104 не указан тип отделки в ДП (8 этаж)', affectedDoc: 'МФЗ - Зона 2' },
-                { classifier: 'Материалы', desc: 'Нет информации по отделочным материалам на 10 и 11 этажах', affectedDoc: 'МФЗ - Зона 8' },
-                { classifier: 'Проектные решения', desc: 'На 8-ом этаже в коридорах ширина 1200мм, необходимо уточнение по отделочным материалам, проходит ли по эвакуации', affectedDoc: 'МФЗ - Зона 2' },
-                { classifier: 'Материалы', desc: 'Дать пояснения по материалу отделки потолка марки C6 в пом. Фойе (М3.8.9)', affectedDoc: 'МФЗ - Зона 4' },
-                { classifier: 'Проектные решения', desc: 'Необходимо контактное лицо со стороны проектного отдела, кто работает в модели', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'Просим уведомлять о создании нових стадий внутри Revit и предоставить реестр', affectedDoc: 'МФЗ - Общее' },
-                { classifier: 'BIM', desc: 'У помещений в проекте есть перекрытие объемов. Просьба прокомментировать завершена ли работа с помещениями', affectedDoc: 'МФЗ - Общее' }
+                { classifier: 'Материалы', desc: 'В альбоме дизайна от авторов концепции отсутствует описание отделки WF-9', affectedDoc: 'МФЗ - Зона 4' }
             ];
 
-            // Генерируем ID и добавляем метаданные
-            const contractor = CONTRACTORS.find(c => c.id === 3); // FitOut Pro
+            const contractor = CONTRACTORS.find(c => c.id === 3);
             let counter = 1;
-            
-            // Проверяем существующие ID FitOut Pro
             const existingFP = issues.filter(i => i.id.startsWith('FP-'));
             const maxNum = existingFP.reduce((max, i) => {
                 const num = parseInt(i.id.split('-')[1]) || 0;
                 return Math.max(max, num);
             }, 0);
-            
             counter = maxNum + 1;
 
             const newIssues = fitOutIssues.map((issue, idx) => ({
@@ -1843,39 +2350,12 @@ function getFilteredMDRData() {
                 comments: ''
             }));
 
-            // Добавляем только если таких проблем еще нет (проверяем по описанию)
             const existingDescs = new Set(issues.map(i => i.desc));
             const uniqueNewIssues = newIssues.filter(i => !existingDescs.has(i.desc));
             
             issues = [...issues, ...uniqueNewIssues];
             saveToStorage();
-            
-            if (uniqueNewIssues.length > 0) {
-                alert(`Добавлено ${uniqueNewIssues.length} проблем от FitOut Pro`);
-            }
         }
-
-        // ========== ЗАКРЫТИЕ МОДАЛОВ ==========
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'changeModal') closeChangeModal();
-            if (e.target.id === 'issueModal') closeIssueModal();
-        });
-
-        // ========== СТАРТ ==========
-        window.onload = function() {
-            init();
-            // Загружаем демо-проблемы FitOut Pro при первом запуске
-            if (issues.filter(i => i.contractorId === 3).length === 0) {
-                loadFitOutProDemoIssues();
-                render();
-            }
-        };
     </script>
 </body>
 </html>
-
-
-
-
-
-
