@@ -1565,7 +1565,7 @@ function isZoneCollapsed(contractorId, zone) {
                             <button class="btn btn-secondary" onclick="expandAllZones(${contractorId})" style="padding: 6px 12px; font-size: 0.85em;">
                                 ${currentLang === 'ru' ? '↔️ Развернуть все' : '↔️ Expand all'}
                             </button>
-                            <button class="btn btn-secondary" onclick="collapseAllZones(${contractorId}, ${JSON.stringify(Object.keys(byZone))})" style="padding: 6px 12px; font-size: 0.85em;">
+                            <button class="btn btn-secondary" onclick='collapseAllZones(${contractorId}, ${JSON.stringify(Object.keys(byZone)).replace(/"/g, '&quot;')})' style="padding: 6px 12px; font-size: 0.85em;">
                                 ${currentLang === 'ru' ? '↕️ Свернуть все' : '↕️ Collapse all'}
                             </button>
                         </div>
