@@ -969,62 +969,71 @@
             }
         }
 
-        async function loadMDRFromSheets() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
-            
-            const response = await fetch(url);
-            if (!response.ok) {
-                if (response.status === 403) throw new Error(currentLang === 'ru' ? 'Доступ запрещен' : 'Access denied');
-                if (response.status === 404) throw new Error(currentLang === 'ru' ? 'Таблица не найдена' : 'Table not found');
-                throw new Error(`HTTP ${response.status}`);
-            }
-            
-            const data = await response.json();
-            const rows = data.values || [];
-            
-            if (rows.length < 3) throw new Error(currentLang === 'ru' ? 'Недостаточно данных' : 'Insufficient data');
+async function loadMDRFromSheets() {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.MDR_RANGE}?key=${CONFIG.API_KEY}`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+        if (response.status === 403) throw new Error(currentLang === 'ru' ? 'Доступ запрещен' : 'Access denied');
+        if (response.status === 404) throw new Error(currentLang === 'ru' ? 'Таблица не найдена' : 'Table not found');
+        throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const rows = data.values || [];
+    
+    if (rows.length < 3) throw new Error(currentLang === 'ru' ? 'Недостаточно данных' : 'Insufficient data');
 
-            mdrData = [];
-            aiDocs = [];
-            
-            for (let i = 2; i < rows.length; i++) {
-                const row = rows[i];
-                if (!row || row.length === 0) continue;
-                
-                const zone = (row[0] || '').toString().trim();
-                const discipline = (row[1] || '').toString().trim();
-                const docCode = (row[4] || '').toString().trim();
-                const docName = (row[5] || '').toString().trim();
-                const intermediateStatus = row[11] ? row[11].toString().trim() : '';
-                const finalStatus = row[12] ? row[12].toString().trim() : '';
-                
-                const isAI = discipline.toUpperCase().includes('АИ') || 
-                             discipline.toUpperCase().includes('AI') ||
-                             docCode.toUpperCase().includes('АИ') ||
-                             docCode.toUpperCase().includes('AI');
-                
-                const contractor = findContractor(zone);
-                
-                const doc = {
-                    id: i,
-                    zone: zone,
-                    discipline: discipline,
-                    docCode: docCode,
-                    docName: docName,
-                    intermediateStatus: intermediateStatus,
-                    finalStatus: finalStatus,
-                    contractorId: contractor?.id,
-                    contractorName: contractor?.name || (currentLang === 'ru' ? 'Не определен' : 'Undefined'),
-                    isAI: isAI
-                };
-                
-                mdrData.push(doc);
-                
-                if (isAI && contractor) {
-                    aiDocs.push(doc);
-                }
-            }
+    mdrData = [];
+    aiDocs = [];
+    
+    for (let i = 2; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+        
+        const zone = (row[0] || '').toString().trim();
+        const discipline = (row[1] || '').toString().trim();
+        const docCode = (row[4] || '').toString().trim();
+        const docNameBase = (row[5] || '').toString().trim();
+        const docNameDetail = (row[6] || '').toString().trim(); // Колонка G
+        const intermediateStatus = row[11] ? row[11].toString().trim() : '';
+        const finalStatus = row[12] ? row[12].toString().trim() : '';
+        
+        // Формируем полное наименование: базовое + детализация из колонки G
+        let docName = docNameBase;
+        if (docNameDetail) {
+            docName = docNameBase + ' | ' + docNameDetail;
         }
+        
+        const isAI = discipline.toUpperCase().includes('АИ') || 
+                     discipline.toUpperCase().includes('AI') ||
+                     docCode.toUpperCase().includes('АИ') ||
+                     docCode.toUpperCase().includes('AI');
+        
+        const contractor = findContractor(zone);
+        
+        const doc = {
+            id: i,
+            zone: zone,
+            discipline: discipline,
+            docCode: docCode,
+            docName: docName,          // Полное наименование с детализацией
+            docNameBase: docNameBase,  // Базовое наименование (без G)
+            docNameDetail: docNameDetail, // Детализация из колонки G
+            intermediateStatus: intermediateStatus,
+            finalStatus: finalStatus,
+            contractorId: contractor?.id,
+            contractorName: contractor?.name || (currentLang === 'ru' ? 'Не определен' : 'Undefined'),
+            isAI: isAI
+        };
+        
+        mdrData.push(doc);
+        
+        if (isAI && contractor) {
+            aiDocs.push(doc);
+        }
+    }
+}
 
         function findContractor(zone) {
             if (!zone) return null;
@@ -2251,3 +2260,4 @@
     </script>
 </body>
 </html>
+
