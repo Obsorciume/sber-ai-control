@@ -870,13 +870,13 @@
         };
 
         // ========== ДАННЫЕ ==========
-        const CONTRACTORS = [
-            { id: 2, name: 'Design Solution', prefix: 'DS', shortName: 'DS', contact: 'Дмитрий Сербин', phone: '+7 952 550 9128', zones: ['Банк МВСП', 'Офисы', 'Столовая', 'Ресторан', 'Атриум', 'МОП'] },
-            { id: 3, name: 'FitOut Pro', prefix: 'FIT', shortName: 'FP', contact: 'Карен Акопян', phone: '+7 926 874 4470', zones: ['МФЗ'] },
-            { id: 4, name: 'Ultima Pro', prefix: 'ULT', shortName: 'UP', contact: 'Василий Черненко', phone: '+7 916 778 5211', zones: ['Визитор-центр'] },
-            { id: 5, name: 'A4', prefix: 'A4', shortName: 'A4', contact: 'Лия Монахова', phone: '+7 926 211 0122', zones: ['Медиацентр', 'Эксплуатируемая кровля'] },
-            { id: 6, name: 'Bohan Studio', prefix: 'BOH', shortName: 'BS', contact: 'Виктория Нагурная', phone: '+7 965 106 3111', zones: ['Спорткомплекс'] }
-        ];
+const CONTRACTORS = [
+    { id: 2, name: 'Design Solution', prefix: 'DS', shortName: 'DS', contact: 'Дмитрий Сербин', phone: '+7 952 550 9128', zones: ['Банк МВСП', 'Офисы', 'Столовая', 'Ресторан', 'Атриум', 'МОП', 'Входная группа + гранд-лестница', 'Зона свободной планировки (18 этажа)', 'ЗСП'] },
+    { id: 3, name: 'FitOut Pro', prefix: 'FIT', shortName: 'FP', contact: 'Карен Акопян', phone: '+7 926 874 4470', zones: ['МФЗ'] },
+    { id: 4, name: 'Ultima Pro', prefix: 'ULT', shortName: 'UP', contact: 'Василий Черненко', phone: '+7 916 778 5211', zones: ['Визитор-центр'] },
+    { id: 5, name: 'A4', prefix: 'A4', shortName: 'A4', contact: 'Лия Монахова', phone: '+7 926 211 0122', zones: ['Медиацентр', 'Эксплуатируемая кровля'] },
+    { id: 6, name: 'Bohan Studio', prefix: 'BOH', shortName: 'BS', contact: 'Виктория Нагурная', phone: '+7 965 106 3111', zones: ['Спорткомплекс'] }
+];
 
         const CLASSIFIERS = [
             'Весь объект', 'Согласование', 'ИРД', 'BIM', 'Проектные решения',
@@ -1035,20 +1035,33 @@ async function loadMDRFromSheets() {
     }
 }
 
-        function findContractor(zone) {
-            if (!zone) return null;
-            const z = zone.toLowerCase();
-            
-            if (z.includes('банк') || z.includes('офис') || z.includes('столовая') || z.includes('ресторан') || z.includes('атриум') || z.includes('моп')) {
-                return CONTRACTORS[0];
-            }
-            if (z.includes('мфз')) return CONTRACTORS[1];
-            if (z.includes('визитор')) return CONTRACTORS[2];
-            if (z.includes('медиа') || z.includes('кровля') || z.includes('терраса')) return CONTRACTORS[3];
-            if (z.includes('спорт')) return CONTRACTORS[4];
-            
-            return null;
-        }
+function findContractor(zone) {
+    if (!zone) return null;
+    const z = zone.toLowerCase();
+    
+    // Design Solution (id: 2)
+    if (z.includes('банк') || z.includes('офис') || z.includes('столовая') || 
+        z.includes('ресторан') || z.includes('атриум') || z.includes('моп') ||
+        z.includes('входная') || z.includes('входной') || z.includes('гранд') || 
+        z.includes('лестница') || z.includes('лестницы') ||
+        z.includes('свободной планировки') || z.includes('зсп') || z.includes('18 этаж')) {
+        return CONTRACTORS[0];
+    }
+    
+    // FitOut Pro (id: 3)
+    if (z.includes('мфз')) return CONTRACTORS[1];
+    
+    // Ultima Pro (id: 4)
+    if (z.includes('визитор')) return CONTRACTORS[2];
+    
+    // A4 (id: 5)
+    if (z.includes('медиа') || z.includes('кровля') || z.includes('терраса')) return CONTRACTORS[3];
+    
+    // Bohan Studio (id: 6)
+    if (z.includes('спорт')) return CONTRACTORS[4];
+    
+    return null;
+}
 
         function updateSyncStatus(status, text) {
             const indicator = document.getElementById('syncIndicator');
